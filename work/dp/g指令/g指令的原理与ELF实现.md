@@ -20,7 +20,7 @@
 
 #### Section Group 节区分组
 
-有关节区分组的中文资料较少且二手不靠谱，原资料[链接](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter7-26.html).
+有关节区分组的中文资料较少且二手不靠谱，原资料[链接https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter7-26.html](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter7-26.html).
 
 有些Section出现在相互关联的组中。例如，内联函数的定义可能需要除包含可执行指令的部分之外的其他信息（例如包含引用文字的只读数据Section、一个或多个调试信息Section或其他信息Section），即内联函数包括了其他Section的信息。它用于将Section组合在一起，告诉链接器如果它在组中包含某个Section，那么它也必须包含同组的其它Section。
 
