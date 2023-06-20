@@ -1,5 +1,7 @@
 # 选项- g的原理和具体实现
-****
+
+---
+
 ## 选项-g 的介绍
 
 #### Section Group 节区分组
@@ -14,9 +16,9 @@ Section Group的类型名为SHT_GROUP。该Section Header的结构同Elf32_Shdr
 
 Section Group有一个标志位如下：
 
-Name | Value
------|-------
-GRP_COMDAT|0x1
+| Name       | Value |
+| ---------- | ----- |
+| GRP_COMDAT | 0x1   |
 
 在这种情况下，链接编辑器只会保留一个重复组。其余的组将被丢弃。即当Section Group的标志为GRP_COMDAT时，它告诉链接器如果在两个.o目标文件中出现了同一个组，那么它只需要包含其中一个，另外一个丢弃掉。用于删除重复的C++实例化的模版。
 
@@ -30,6 +32,7 @@ Section Group是帮助目标文件进行链接的，因此可执行程序**没�
 
 ## 选项-g 显示的信息解释
 
+![1687230747671](image/g指令的原理与ELF实现/1687230747671.png)
 
 
 ## 代码实现
