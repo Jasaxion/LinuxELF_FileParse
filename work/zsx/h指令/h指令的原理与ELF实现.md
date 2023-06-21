@@ -97,11 +97,53 @@ There are no sections in this file.
 
 #### 3.2 ELF文件类型
 
+ELF文件主要有三种类型，可以通过ELF Header中的`e_type`成员进行区分。
 
+- **可重定位文件（Relocatable File）**：`ETL_REL`。一般为`.o`文件。可以被链接成可执行文件或共享目标文件。静态链接库属于可重定位文件。
+- **可执行文件（Executable File）**：`ET_EXEC`。可以直接执行的程序。
+- **共享目标文件（Shared Object File）**：`ET_DYN`，一般为`.so`文件，有两种情况可以使用。
+  - 链接器将其与其他可重定位文件、共享目标文件链接成新的目标文件；
+  - 动态链接器将其与其他共享目标文件、结合一个可执行文件，创建进程映像。
+
+#### 3.3 机器类型
+
+ELF文件格式被设计成可以在多个平台下使用，但这并不是表示同一个ELF文件可以在不同的平台下使用，而是表示不同平台下的ELF文件都遵循同一套ELF标准。`e_machine`成员就表示该ELF文件的平台属性，
+
+- `EM_M32`：1 「AT&T WE 32100」
+- `EM_SPARC`：2 「SPARC」
+- `EM_386`: 3 「Intel x86」
+- `EM_68K`：4 「Motorola 680000」
+- `EM_88K`：5 「Motorola 88000」
+- `EM_860`：6 「Intel 80860」
 
 ## 四、代码实现
 
 ### 4.1算法思路
+
+下面以32为ELF字长为例进行解析
+
+- 数据结构定义「32位」
+
+```cpp
+typedef struct {
+    unsigned char    e_ident[16];        /* ELF "magic数" */
+    unsigned char    e_type[2];        /* 标识对象文件类型 */
+    unsigned char    e_machine[2];        /* 指定所需的体系结构 */
+    unsigned char    e_version[4];        /* 标识目标文件版本 */
+    unsigned char    e_entry[4];        /* 入口点虚拟地址*/
+    unsigned char    e_phoff[4];        /* 程序头表文件偏移量 */
+    unsigned char    e_shoff[4];        /* 节头表文件偏移量 */
+    unsigned char    e_flags[4];        /* 特定于处理器的标志 */
+    unsigned char    e_ehsize[2];        /* ELF头大小（以字节为单位） */
+    unsigned char    e_phentsize[2];        /* 程序头表条目大小 */
+    unsigned char    e_phnum[2];        /* 程序头表条目计数 */
+    unsigned char    e_shentsize[2];        /* 节头表条目大小 */
+    unsigned char    e_shnum[2];        /* 节头表项计数 */
+    unsigned char    e_shstrndx[2];        /* 节头字符串表索引 */
+} Elf32_External_Ehdr;
+```
+
+
 
 
 
