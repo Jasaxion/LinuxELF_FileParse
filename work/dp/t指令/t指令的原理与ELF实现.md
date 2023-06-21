@@ -292,50 +292,47 @@ Symbol table '.symtab' contains 32 entries:
 恰好有32个符号，这与我们的工具是一致的。
 
 * Flg：标志位空。
-* Lk：包含条目的符号表节的节头索引为21。使用原生readelf工具进行验证，如下图所示：
+* Lk：由于我们的节区.symtab的类型为SHT_SYMTAB，所以sh_link表示的是关联字符串表的节区索引。在字符串表中的索引为21。使用原生readelf工具进行验证，如下图节区表所示：
 
   ```shell
-  dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -s testg-template.o
+  dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -S testg-template.o
+  There are 23 section headers, starting at offset 0x748:
 
-  Symbol table '.symtab' contains 32 entries:
-     Num:    Value  Size Type    Bind   Vis      Ndx Name
-       0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-       1: 00000000     0 FILE    LOCAL  DEFAULT  ABS testg-template.cpp
-       2: 00000000     0 SECTION LOCAL  DEFAULT    4 
-       3: 00000000     0 SECTION LOCAL  DEFAULT    6 
-       4: 00000000     0 SECTION LOCAL  DEFAULT    7 
-       5: 00000000     0 SECTION LOCAL  DEFAULT    8 
-       6: 00000000     1 OBJECT  LOCAL  DEFAULT    8 _ZStL19piecewise_construc
-       7: 00000000     1 OBJECT  LOCAL  DEFAULT    7 _ZStL8__ioinit
-       8: 00000000     0 SECTION LOCAL  DEFAULT    9 
-       9: 00000057    93 FUNC    LOCAL  DEFAULT    4 _Z41__static_initializati
-      10: 000000b4    40 FUNC    LOCAL  DEFAULT    4 _GLOBAL__sub_I_main
-      11: 00000000     0 SECTION LOCAL  DEFAULT   11 
-      12: 00000000     0 SECTION LOCAL  DEFAULT   13 
-      13: 00000000     0 SECTION LOCAL  DEFAULT   14 
-      14: 00000000     0 SECTION LOCAL  DEFAULT   16 
-      15: 00000000     0 SECTION LOCAL  DEFAULT   17 
-      16: 00000000     0 SECTION LOCAL  DEFAULT   18 
-      17: 00000000     0 SECTION LOCAL  DEFAULT   15 
-      18: 00000000     0 SECTION LOCAL  DEFAULT    1 
-      19: 00000000     0 SECTION LOCAL  DEFAULT    2 
-      20: 00000000     0 SECTION LOCAL  DEFAULT    3 
-      21: 00000000    87 FUNC    GLOBAL DEFAULT    4 main
-      22: 00000000     0 FUNC    GLOBAL HIDDEN    14 __x86.get_pc_thunk.bx
-      23: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _GLOBAL_OFFSET_TABLE_
-      24: 00000000    27 FUNC    WEAK   DEFAULT    9 _Z3addIiET_S0_S0_
-      25: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZSt4cout
-      26: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSolsEi
-      27: 00000000     0 FUNC    GLOBAL HIDDEN    13 __x86.get_pc_thunk.ax
-      28: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitC1Ev
-      29: 00000000     0 NOTYPE  GLOBAL HIDDEN   UND __dso_handle
-      30: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitD1Ev
-      31: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND __cxa_atexit
+  Section Headers:
+    [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+    [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+    [ 1] .group            GROUP           00000000 000034 00000c 04     20  24  4
+    [ 2] .group            GROUP           00000000 000040 000008 04     20  27  4
+    [ 3] .group            GROUP           00000000 000048 000008 04     20  22  4
+    [ 4] .text             PROGBITS        00000000 000050 0000dc 00  AX  0   0  1
+    [ 5] .rel.text         REL             00000000 0005a8 000078 08   I 20   4  4
+    [ 6] .data             PROGBITS        00000000 00012c 000000 00  WA  0   0  1
+    [ 7] .bss              NOBITS          00000000 00012c 000001 00  WA  0   0  1
+    [ 8] .rodata           PROGBITS        00000000 00012c 000001 00   A  0   0  1
+    [ 9] .text._Z3addIiET_ PROGBITS        00000000 00012d 00001b 00 AXG  0   0  1
+    [10] .rel.text._Z3addI REL             00000000 000620 000010 08  IG 20   9  4
+    [11] .init_array       INIT_ARRAY      00000000 000148 000004 04  WA  0   0  4
+    [12] .rel.init_array   REL             00000000 000630 000008 08   I 20  11  4
+    [13] .text.__x86.get_p PROGBITS        00000000 00014c 000004 00 AXG  0   0  1
+    [14] .text.__x86.get_p PROGBITS        00000000 000150 000004 00 AXG  0   0  1
+    [15] .comment          PROGBITS        00000000 000154 00002c 01  MS  0   0  1
+    [16] .note.GNU-stack   PROGBITS        00000000 000180 000000 00      0   0  1
+    [17] .note.gnu.propert NOTE            00000000 000180 00001c 00   A  0   0  4
+    [18] .eh_frame         PROGBITS        00000000 00019c 0000d8 00   A  0   0  4
+    [19] .rel.eh_frame     REL             00000000 000638 000030 08   I 20  18  4
+    [20] .symtab           SYMTAB          00000000 000274 000200 10     21  21  4
+    [21] .strtab           STRTAB          00000000 000474 000134 00      0   0  1
+    [22] .shstrtab         STRTAB          00000000 000668 0000dd 00      0   0  1
+  Key to Flags:
+    W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+    L (link order), O (extra OS processing required), G (group), T (TLS),
+    C (compressed), x (unknown), o (OS specific), E (exclude),
+    p (processor specific)
 
   ```
 
   索引为21的节区正好是字符串表strtab所在的节区，用于给symtab提供符号名。
-* Inf：标识元素的符号表索引为21。使用原生readelf工具打印其符号表，如下图所示：
+* Inf：由于我们的节区.symtab的类型为SHT_SYMTAB，所以sh_info表示的是比最后一个局部符号的索引大1。标识元素的符号表索引为21。使用原生readelf工具打印其符号表，如下图所示：
 
   ```shell
   dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -s testg-template.o
@@ -374,10 +371,9 @@ Symbol table '.symtab' contains 32 entries:
       29: 00000000     0 NOTYPE  GLOBAL HIDDEN   UND __dso_handle
       30: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitD1Ev
       31: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND __cxa_atexit
-
   ```
 
-  得到符号表对应的符号为_Z3addIiET_S0_S0_，正好与Section Group中的项目一致。
+  得到符号表对应的符号为main，正好为最后一个局部符号（LOCAL）加1的符号。
 * Al：节区对齐4B，因为本节区是一个表，所以项的大小是固定的，需要进行对齐。
 
 
