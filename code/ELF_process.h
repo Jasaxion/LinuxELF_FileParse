@@ -10,22 +10,23 @@
 
 
 typedef struct {
-    unsigned char    e_ident[16];        /* ELF "magic number" */
-    unsigned char    e_type[2];        /* Identifies object file type */
-    unsigned char    e_machine[2];        /* Specifies required architecture */
-    unsigned char    e_version[4];        /* Identifies object file version */
-    unsigned char    e_entry[4];        /* Entry point virtual address */
-    unsigned char    e_phoff[4];        /* Program header table file offset */
-    unsigned char    e_shoff[4];        /* Section header table file offset */
-    unsigned char    e_flags[4];        /* Processor-specific flags */
-    unsigned char    e_ehsize[2];        /* ELF header size in bytes */
-    unsigned char    e_phentsize[2];        /* Program header table entry size */
-    unsigned char    e_phnum[2];        /* Program header table entry count */
-    unsigned char    e_shentsize[2];        /* Section header table entry size */
-    unsigned char    e_shnum[2];        /* Section header table entry count */
-    unsigned char    e_shstrndx[2];        /* Section header string table index */
+    unsigned char    e_ident[16];        /* ELF "magic数" */
+    unsigned char    e_type[2];        /* 标识对象文件类型 */
+    unsigned char    e_machine[2];        /* 指定所需的体系结构 */
+    unsigned char    e_version[4];        /* 标识目标文件版本 */
+    unsigned char    e_entry[4];        /* 入口点虚拟地址*/
+    unsigned char    e_phoff[4];        /* 程序头表文件偏移量 */
+    unsigned char    e_shoff[4];        /* 节头表文件偏移量 */
+    unsigned char    e_flags[4];        /* 特定于处理器的标志 */
+    unsigned char    e_ehsize[2];        /* ELF头大小（以字节为单位） */
+    unsigned char    e_phentsize[2];        /* 程序头表条目大小 */
+    unsigned char    e_phnum[2];        /* 程序头表条目计数 */
+    unsigned char    e_shentsize[2];        /* 节头表条目大小 */
+    unsigned char    e_shnum[2];        /* 节头表项计数 */
+    unsigned char    e_shstrndx[2];        /* 节头字符串表索引 */
 } Elf32_External_Ehdr;
 
+/*与Elf32_External_Ehdr 一致，不过适用于64位*/
 typedef struct {
     unsigned char    e_ident[16];        /* ELF "magic number" */
     unsigned char    e_type[2];        /* Identifies object file type */
