@@ -124,6 +124,10 @@ typedef struct {
   - e_shnum：2个字节-节头部表的条目数
   - e_shstrndx：2个字节，节头部条目和其位置的对应关系
 
+### 4.2程序流程图
+
+![image-20230621212403485](./h%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230621212403485.png)
+
 ### 4.3代码详细解释
 
 #### 4.3.1判断magic数是否能正确表示ELF文件
@@ -471,7 +475,61 @@ const char *ELF_process::get_machine_name(unsigned e_machine)
 }
 ```
 
-#### 4.3.7 文件版本e_version
+#### 获取其他头文件信息
+
+```cpp
+//获取文件头信息的其他部分
+//下面的代码为32位信息显示
+//只支持32位的信息显示目前
+int ELF_process::get_file_header(FILE *file)
+{
+
+    /* 读取ELF信息，前16个字节，只有当读取成功了才往后面走  */
+    if (fread (elf_header.e_ident, EI_NIDENT, 1, file) != 1)
+        return 0;
+
+    /* 目前只是实现了32位环境下的表示  */
+    is_32bit_elf = (elf_header.e_ident[EI_CLASS] != ELFCLASS64);
+
+    /* 读取头部信息的其他部分  */
+    if (is_32bit_elf)
+    {
+
+        Elf32_External_Ehdr ehdr32; //文件头信息的其他部分
+        //读取信息除了前16个字节，从后一个字节开始读取
+        if (fread (ehdr32.e_type, sizeof (ehdr32) - EI_NIDENT, 1, file) != 1)
+            return 0;
+        //读取对应部分的字节信息
+        elf_header.e_type      = BYTE_GET (ehdr32.e_type);
+        elf_header.e_machine   = BYTE_GET (ehdr32.e_machine);
+        elf_header.e_version   = BYTE_GET (ehdr32.e_version);
+        elf_header.e_entry     = BYTE_GET (ehdr32.e_entry);
+        elf_header.e_phoff     = BYTE_GET (ehdr32.e_phoff);
+        elf_header.e_shoff     = BYTE_GET (ehdr32.e_shoff);
+        elf_header.e_flags     = BYTE_GET (ehdr32.e_flags);
+        elf_header.e_ehsize    = BYTE_GET (ehdr32.e_ehsize);
+        elf_header.e_phentsize = BYTE_GET (ehdr32.e_phentsize);
+        elf_header.e_phnum     = BYTE_GET (ehdr32.e_phnum);
+        elf_header.e_shentsize = BYTE_GET (ehdr32.e_shentsize);
+        elf_header.e_shnum     = BYTE_GET (ehdr32.e_shnum);
+        elf_header.e_shstrndx  = BYTE_GET (ehdr32.e_shstrndx);
+
+
+        {
+            if (is_32bit_elf)
+                get_32bit_section_headers(file,1);
+            else
+            {
+                //64λ ...
+            }
+        }
+
+    }
+    return 1;
+}
+```
+
+- 文件版本e_version
 
 直接存储即可，不需要进行判断输出
 
@@ -479,7 +537,7 @@ const char *ELF_process::get_machine_name(unsigned e_machine)
 (unsigned long) elf_header.e_version)
 ```
 
-#### 4.3.8 进程开始的虚拟地址e_entry
+- 进程开始的虚拟地址e_entry
 
 直接存储即可，不需要进行判断输出
 
@@ -487,7 +545,7 @@ const char *ELF_process::get_machine_name(unsigned e_machine)
 elf_header.e_entry
 ```
 
-#### 4.3.9 程序头部表的开始e_phoff
+- 程序头部表的开始e_phoff
 
 直接存储即可，不需要进行判断输出
 
@@ -495,7 +553,7 @@ elf_header.e_entry
 elf_header.e_phoff
 ```
 
-#### 4.3.10 节点头部表的开始e_shoff
+- 节点头部表的开始e_shoff
 
 直接存储即可，不需要进行判断输出
 
@@ -503,7 +561,7 @@ elf_header.e_phoff
 elf_header.e_shoff
 ```
 
-#### 4.3.11 取决于目标架构e_flags
+- 取决于目标架构e_flags
 
 直接存储即可，不需要进行判断输出
 
@@ -511,7 +569,7 @@ elf_header.e_shoff
 (unsigned  long)elf_header.e_flags
 ```
 
-#### 4.3.12 文件头部的大小e_ehsize
+- 文件头部的大小e_ehsize
 
 直接存储即可，不需要进行判断输出
 
@@ -519,7 +577,7 @@ elf_header.e_shoff
 (long)elf_header.e_ehsize
 ```
 
-#### 4.3.13程序头部的大小e_phentsize
+- 程序头部的大小e_phentsize
 
 直接存储即可，不需要进行判断输出
 
@@ -527,7 +585,7 @@ elf_header.e_shoff
 (long)elf_header.e_phentsize
 ```
 
-#### 4.3.13程序头部的条目数e_phnum
+- 程序头部的条目数e_phnum
 
 直接存储即可，不需要进行判断输出
 
@@ -535,7 +593,7 @@ elf_header.e_shoff
 (long)elf_header.e_phnum
 ```
 
-#### 4.3.14节头部表的大小e_shentsize
+- 节头部表的大小e_shentsize
 
 直接存储即可，不需要进行判断输出
 
@@ -543,7 +601,7 @@ elf_header.e_shoff
 (long) elf_header.e_shentsize
 ```
 
-#### 4.3.15节头部表的条目数e_shnum
+- 节头部表的条目数e_shnum
 
 直接存储即可，不需要进行判断输出
 
@@ -555,7 +613,7 @@ if (section_headers != NULL && elf_header.e_shnum == SHN_UNDEF)
         printf (" (%ld)", (long) section_headers[0].sh_size);
 ```
 
-#### 4.3.16节头部表的条目和其位置的对应关系e_shstrndx
+- 节头部表的条目和其位置的对应关系e_shstrndx
 
 直接存储即可，不需要进行判断输出
 
@@ -587,27 +645,25 @@ g++ -o test-h.so test-h.cpp
 
 ```
 ELF Header:
-  Magic:     7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
-  Class:                             ELF64
+  Magic:     7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF32
   Data:                              2's complement, little endian
   Version:                           1 (current)
   OS/ABI:                            UNIX System V ABI
   ABI Version:                       0
-  Type:                              NONE (None)
-  Machine:                           None
-  Version:                           0x0
-  Entry point address:               0x0
-  Start of program headers:          0 (bytes into file)
-  Start of section headers:          0 (bytes into file)
+  Type:                              EXEC (Executable file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0x8048500
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          15612 (bytes into file)
   Flags:                             0x0
-  Size of this header:               0 (bytes)
-  Size of program headers:           0 (bytes)
-  Number of program headers:         0
-  Size of section headers:           0 (bytes)
-  Number of section headers:         0
-  Section header string table index: 0
-
-There are no sections in this file.
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         9
+  Size of section headers:           40 (bytes)
+  Number of section headers:         30
+  Section header string table index: 29
 ```
 
 使用readelf -h test-h 的输出结果如下：
@@ -635,3 +691,4 @@ ELF 头：
   字符串表索引节头： 29
 ```
 
+可以发现，我们的程序与ELF进行对比后，可以正确实现选项`-h`的内容

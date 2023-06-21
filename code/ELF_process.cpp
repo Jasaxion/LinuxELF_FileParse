@@ -175,25 +175,28 @@ int ELF_process::Process_object(FILE *file,int option,char * target_section_name
         print_xout(file, target_section_idx);
     }
 }
-
+//获取文件头信息的其他部分
+//下面的代码为32位信息显示
+//只支持32位的信息显示目前
 int ELF_process::get_file_header(FILE *file)
 {
 
-    /* Read in the identity array.  */
+    /* 读取ELF信息，前16个字节，只有当读取成功了才往后面走  */
     if (fread (elf_header.e_ident, EI_NIDENT, 1, file) != 1)
         return 0;
 
-    /* For now we only support 32 bit and 64 bit ELF files.  */
+    /* 目前只是实现了32位环境下的表示  */
     is_32bit_elf = (elf_header.e_ident[EI_CLASS] != ELFCLASS64);
 
-    /* Read in the rest of the header.  */
+    /* 读取头部信息的其他部分  */
     if (is_32bit_elf)
     {
 
-        Elf32_External_Ehdr ehdr32;
+        Elf32_External_Ehdr ehdr32; //文件头信息的其他部分
+        //读取信息除了前16个字节，从后一个字节开始读取
         if (fread (ehdr32.e_type, sizeof (ehdr32) - EI_NIDENT, 1, file) != 1)
             return 0;
-
+        //读取对应部分的字节信息
         elf_header.e_type      = BYTE_GET (ehdr32.e_type);
         elf_header.e_machine   = BYTE_GET (ehdr32.e_machine);
         elf_header.e_version   = BYTE_GET (ehdr32.e_version);
