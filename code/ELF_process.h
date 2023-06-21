@@ -45,7 +45,7 @@ typedef struct {
 } Elf64_External_Ehdr;
 
 /* Section header */
-
+/* 节区头表 */
 typedef struct {
     unsigned char    sh_name[4];        /* Section name, index in string tbl */
     unsigned char    sh_type[4];        /* Type of section */
@@ -73,7 +73,7 @@ typedef struct {
 } Elf64_External_Shdr;
 
 /* Program header */
-
+/* 程序头表 */
 typedef struct {
     unsigned char    p_type[4];        /* Identifies program segment type */
     unsigned char    p_offset[4];        /* Segment file offset */

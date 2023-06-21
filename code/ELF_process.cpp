@@ -175,25 +175,28 @@ int ELF_process::Process_object(FILE *file,int option,char * target_section_name
         print_xout(file, target_section_idx);
     }
 }
-
+//获取文件头信息的其他部分
+//下面的代码为32位信息显示
+//只支持32位的信息显示目前
 int ELF_process::get_file_header(FILE *file)
 {
 
-    /* Read in the identity array.  */
+    /* 读取ELF信息，前16个字节，只有当读取成功了才往后面走  */
     if (fread (elf_header.e_ident, EI_NIDENT, 1, file) != 1)
         return 0;
 
-    /* For now we only support 32 bit and 64 bit ELF files.  */
+    /* 目前只是实现了32位环境下的表示  */
     is_32bit_elf = (elf_header.e_ident[EI_CLASS] != ELFCLASS64);
 
-    /* Read in the rest of the header.  */
+    /* 读取头部信息的其他部分  */
     if (is_32bit_elf)
     {
 
-        Elf32_External_Ehdr ehdr32;
+        Elf32_External_Ehdr ehdr32; //文件头信息的其他部分
+        //读取信息除了前16个字节，从后一个字节开始读取
         if (fread (ehdr32.e_type, sizeof (ehdr32) - EI_NIDENT, 1, file) != 1)
             return 0;
-
+        //读取对应部分的字节信息
         elf_header.e_type      = BYTE_GET (ehdr32.e_type);
         elf_header.e_machine   = BYTE_GET (ehdr32.e_machine);
         elf_header.e_version   = BYTE_GET (ehdr32.e_version);
@@ -364,10 +367,11 @@ void *ELF_process::cmalloc (size_t nmemb, size_t size)
     else
         return malloc (nmemb * size);
 }
-
+/*读取文件头*/
+/*头文件信息在Magic 数中*/
 int ELF_process::process_file_header(void)
 {
-
+    /*判断是否Magic是否存在问题*/
     if (   elf_header.e_ident[EI_MAG0] != ELFMAG0
             || elf_header.e_ident[EI_MAG1] != ELFMAG1
             || elf_header.e_ident[EI_MAG2] != ELFMAG2
@@ -376,11 +380,11 @@ int ELF_process::process_file_header(void)
         printf("Not an ELF file - it has the wrong magic bytes at the start\n");
         return 0;
     }
-
+    /*输出M相关参数*/
     printf("ELF Header:\n");
     printf("  Magic:     ");
     for (int i = 0; i <EI_NIDENT ; ++i)
-        printf ("%2.2x ", elf_header.e_ident[i]);
+        printf ("%2.2x ", elf_header.e_ident[i]); /*读取Magic 数*/
     printf("\n");
     printf("  Class:                             %s\n",
            get_elf_class(elf_header.e_ident[EI_CLASS]));
@@ -437,11 +441,11 @@ int ELF_process::process_file_header(void)
 
 }
 
-
+/*从magic数中，提取elf_class信息*/
 const char *ELF_process::get_elf_class (unsigned int elf_class)
 {
     static char buff[32];
-
+    /*判断elf_class处的字节信息*/
     switch (elf_class)
     {
     case ELFCLASSNONE:
@@ -455,11 +459,11 @@ const char *ELF_process::get_elf_class (unsigned int elf_class)
         return buff;
     }
 }
-
+/*获取data的编码信息*/
 const char *ELF_process::get_data_encoding (unsigned int encoding)
 {
     static char buff[32];
-
+    /*表示数据存储的方式，大端、小端*/
     switch (encoding)
     {
     case ELFDATANONE:
@@ -514,6 +518,7 @@ const char *ELF_process::get_osabi_name (unsigned int osabi)
     snprintf (buff, sizeof (buff), ("<unknown: %x>"), osabi);
     return buff;
 }
+/*返回文件类型*/
 
 const char *ELF_process::get_file_type(unsigned e_type)
 {
@@ -525,15 +530,15 @@ const char *ELF_process::get_file_type(unsigned e_type)
     case ET_NONE:
         return "NONE (None)";
     case ET_REL:
-        return "REL (Relocatable file)";
+        return "REL (Relocatable file)"; //重定向文件
     case ET_EXEC:
-        return "EXEC (Executable file)";
+        return "EXEC (Executable file)"; //执行文件
     case ET_DYN:
-        return "DYN (Shared object file)";
+        return "DYN (Shared object file)"; //共享文件
     case ET_CORE:
-        return "CORE (Core file)";
+        return "CORE (Core file)"; //核心文件
 
-    default:
+    default: //如果不是如上三种文件，那么返回具体的处理器信息或操作系统信息
         if ((e_type >= ET_LOPROC) && (e_type <= ET_HIPROC))
             snprintf(buff, sizeof(buff), ("Processor Specific: (%x)"), e_type);
         else if ((e_type >= ET_LOOS) && (e_type <= ET_HIOS))
@@ -544,7 +549,7 @@ const char *ELF_process::get_file_type(unsigned e_type)
 
     }
 }
-
+/*获取机器类型*/
 const char *ELF_process::get_machine_name(unsigned e_machine)
 {
 
