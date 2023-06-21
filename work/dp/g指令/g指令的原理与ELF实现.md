@@ -146,8 +146,10 @@ Section Group有一个标志位如下：
 
 ## 选项-g 的作用
 
-    -g
-    --section-groups
+```shell
+readelf -g
+        --section-groups
+```
 
 该指令用于显示ELF文件Section Group（节区分组）的信息。
 
@@ -244,7 +246,7 @@ dp@ubuntu:~/Desktop/elf/7.9/testg$ ./main testg-template.o -g
    ```
 
    索引为20的节区正好是符号表symtab所在的节区。
-9. Inf：标识元素的符号表索引为24。使用原生readelf工具打印其符号表，如下图所示：
+9. Inf：标识元素的符号表索引为21。使用原生readelf工具打印其符号表，如下图所示：
 
    ```shell
    dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -s testg-template.o
