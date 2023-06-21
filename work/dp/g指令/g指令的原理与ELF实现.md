@@ -22,6 +22,8 @@
 
 有关节区分组的中文资料较少且二手不靠谱，原资料[链接https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter7-26.html](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter7-26.html).
 
+Section Group是一个特殊的节区，这个节区中包含的内容指向了一组其他的节区，并且需要被链接器特殊对待。SHT_GROUP类型的节区仅仅只会出现在可重定位目标文件（目标文件的ELF头中e_type成员必须为ET_REL）。
+
 有些Section出现在相互关联的组中。例如，内联函数的定义可能需要除包含可执行指令的部分之外的其他信息（例如包含引用文字的只读数据Section、一个或多个调试信息Section或其他信息Section），即内联函数包括了其他Section的信息。它用于将Section组合在一起，告诉链接器如果它在组中包含某个Section，那么它也必须包含同组的其它Section。
 
 Section Group的类型名为SHT_GROUP。该Section Header的结构同Elf32_Shdr
@@ -30,13 +32,26 @@ Section Group的类型名为SHT_GROUP。该Section Header的结构同Elf32_Shdr
 
 Section Group有一个标志位如下：
 
-| Name       | Value |
-| ---------- | ----- |
-| GRP_COMDAT | 0x1   |
+| Name         | Value      |
+| ------------ | ---------- |
+| GRP_COMDAT   | 0x1        |
+| GRP_MASKOS   | 0x0ff00000 |
+| GRP_MASKPROC | 0xf0000000 |
+
+**COMDAT**
 
 在这种情况下，链接编辑器只会保留一个重复组。其余的组将被丢弃。即当Section Group的标志为GRP_COMDAT时，它告诉链接器如果在两个.o目标文件中出现了同一个组，那么它只需要包含其中一个，另外一个丢弃掉。用于删除重复的C++实例化的模版。
 
-Section Group是帮助目标文件进行链接的，因此可执行程序**没有Section Group**！
+当在由多个目标文件时，如果出现了相同的COMDAT节区分组，那么在这种情况下，链接器只会保留一个重复的组，其他组的成员被丢弃。
+
+**MASKOS**
+
+此掩码中包含的所有位都保留用于特定于操作系统的语义。
+
+
+**GRP_MASKPROC**
+
+此掩码中包含的所有位都保留用于特定于处理器的语义。如果指定了含义，处理器补充说明它们。
 
 ## 选项-g 的作用
 
@@ -66,8 +81,8 @@ dp@ubuntu:~/Desktop/elf/7.9/testg$ ./main testg-template.o -g
 | Size | 节区的大小                           | sh_size              | Elf32_Word |
 | ES   | (如果节区含有表)节区每一个条目的大小 | sh_entsize           | Elf32_Word |
 | Flg  | 节区标志位                           | sh_flags             | Elf32_Word |
-| Lk   | 包含条目的符号表节区的节头索引       | sh_link              | Elf32_Word |
-| Inf  | 标识元素的符号表索引                 | sh_info              | Elf32_Word |
+| Lk   | 包含的条目的符号表节区的节头索引     | sh_link              | Elf32_Word |
+| Inf  | 包含的条目的符号表索引               | sh_info              | Elf32_Word |
 | Al   | 节区对齐                             | sh_addralign         | Elf32_Word |
 
 接下来我们来分析其中的第一条：
