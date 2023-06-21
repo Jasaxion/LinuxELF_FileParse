@@ -2,6 +2,7 @@
 #include <cstring>
 #include "ELF_process.h"
 #define file_name "/home/hx/cProgram/Process/libhello-jni.so"
+//将原始的小端字数据，转换为大端数据，与结构体对齐
 #define BYTE_GET(field)  byte_get_little_endian (field,sizeof(field))
 static int is_32bit_elf;
 Elf32_Ehdr  elf_header;
@@ -80,10 +81,10 @@ static unsigned int dynamic_nent;
 
 #define PT_AARCH64_ARCHEXT    (PT_LOPROC + 0)
 
-
+//按照小端方式对字进行转换读取，转换为大端方式
 int byte_get_little_endian (unsigned char *field, int size)
 {
-
+    //依据字的长度进行转换
     switch (size)
     {
     case 1:
@@ -230,20 +231,28 @@ int ELF_process::process_version(FILE *file){
     return printf("No version information found in this file.\n");
 }
 
+//读取32位ELF文件的节区头表
 int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
 {
+    //file：ELF文件指针
+    //num：节区头表的项目数
 
     Elf32_External_Shdr * shdrs;
     Elf32_Shdr* internal;
 
+    //利用elf头中的关于节头的信息，读取节头的数据，并强制转换为节头指针数据类型
+    //这里读取的shdrs是节头表数组的首地址
     shdrs = (Elf32_External_Shdr *) get_data (NULL, file, elf_header.e_shoff,
             elf_header.e_shentsize, num,
             ("section headers"));
+    //如果节头数组为空，就表示读取失败了，所以直接返回
     if (!shdrs)
         return 0;
 
+    //申请内存存放节头数组，之前的读取的节头数组是
     section_headers = (Elf32_Shdr *) cmalloc (num,sizeof (Elf32_Shdr));
 
+    //如果申请内存失败，返回内存溢出异常
     if (section_headers == NULL)
     {
         printf("Out of memory\n");
@@ -252,6 +261,11 @@ int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
 
     internal = section_headers;
 
+    //将从文件中读取的小端数据的节区头表数据转换为结构体的数据
+    //这里的转换有讲究的，因为我们读取使用的char[]数组读4个字节的，是不会进行转换的，会直接读取原始的小端数据
+    //这里需要将小端数据转换一下，变成正常的字数据
+    //那为什么不直接用uint_32t?
+    //因为保存的ELF文件不一定都是我定义的Elf32Word类型，变个名字就失效了
     for (int i = 0; i < num; i++, internal++)
     {
         internal->sh_name      = BYTE_GET (shdrs[i].sh_name);
@@ -271,28 +285,46 @@ int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
     return 1;
 }
 
+//将硬盘中文件中的数据提取到内存中的变量
 void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size, size_t nmemb,const char * reason)
 {
+    //var：存放数据的变量地址
+    //file：读取的文件
+    //offset：被读取的数据的偏移地址
+    //size：每个元素的大小
+    //nmemb：一共有多少个这样的元素
+    //reason：读取的原因，便于报错
+
+
+    //临时变量保存地址
     void * mvar;
 
+    //如果每个元素的大小为0，或者有0个元素，那么读空
     if (size == 0 || nmemb == 0)
         return NULL;
 
+    //将文件的读取指针移动到偏移地址处
     if (fseek (file, offset, SEEK_SET))
     {
         //error (_("Unable to seek to 0x%lx for %s\n"),
         //  (unsigned long) archive_file_offset + offset, reason);
+        //若失败则返回读空
         return NULL;
     }
 
     mvar = var;
+    //判断用户的变量是不是为空，如果为空，那么需要申请空间
     if (mvar == NULL)
     {
         /* Check for overflow.  */
+        //检查是否溢出，即将要读取的元素个数大于等于了地址空间全部存放这个元素时的最大个数
         if (nmemb < (~(size_t) 0 - 1) / size)
             /* + 1 so that we can '\0' terminate invalid string table sections.  */
+            //如果没有溢出，那么就申请 元素大小*元素个数+1 的内存空间
+            //+1是为了最后添加'/0'给字符串节区用
             mvar = malloc (size * nmemb + 1);
 
+        //如果此时变量指针还是空的，说明没有成功申请到内存，所以返回读空
         if (mvar == NULL)
         {
             //error (_("Out of memory allocating 0x%lx bytes for %s\n"),
@@ -300,25 +332,35 @@ void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size,
             return NULL;
         }
 
+        //申请成功的话，将最后一位（+1的那个字节）设置为'\0'字符串结束符
         ((char *) mvar)[size * nmemb] = '\0';
     }
 
+    //从文件读取指针处读取nmemb个size大小的数据到mvar所指向的内存空间中
     if (fread (mvar, size, nmemb, file) != nmemb)
     {
+        //若实际读取的元素个数和想要读取的元素个数不一致，那么就异常
         //error (_("Unable to read in 0x%lx bytes of %s\n"),
         // (unsigned long)(size * nmemb), reason);
+        //如果两个指针所指向的地址不一样，那么就释放内存，避免内存泄漏
         if (mvar != var)
             free (mvar);
+        //返回读空
         return NULL;
     }
 
+    //读取完毕，成功返回复制到内存中的数据
     return mvar;
 }
+
+//在内存中申请空间
 void *ELF_process::cmalloc (size_t nmemb, size_t size)
 {
     /* Check for overflow.  */
+    //检查溢出，判断要申请的空间存放的元素个数 是否大于等于 假如全部装这个元素时能存放的最大元素个数
     if (nmemb >= ~(size_t) 0 / size)
         return NULL;
+    //如果没有溢出，那么就申请 元素大小*元素个数 的内存空间大小
     else
         return malloc (nmemb * size);
 }
@@ -668,28 +710,40 @@ const char *ELF_process::get_machine_name(unsigned e_machine)
 
 }
 
+//解析和处理文件的节头表
 int ELF_process::process_section_headers(FILE *file,int option,char *target_section_name)
 {
+    //file：文件指针
+    //option：解析的内容选项
+    //target_section_name：目标节区索引，这个只有当-x指令时生效
+
     Elf32_Shdr * section;
     section = NULL;
     char * string_table;
 
     unsigned int  flag_shoff;
 
+    //依据ELF头判断节区头表的项目数，如果项目数为0那么存在异常
     if (elf_header.e_shnum == 0)
-    {
+    {   
+        //依据elf头中的节区表头偏移地址是不是0，如果是0，那么就说明不存在节区表头，有异常
         if (elf_header.e_shoff!=0)
             printf("possibly corrupt ELF file header - it has a non-zero section header offset, but no section headers\n");
+        //节区表头存在但是没有表项，就说明文件中没有节区
         else
             printf ("\nThere are no sections in this file.\n");
         return 1;
     }
 
+    //如果指令为-t -S -e，那么就先打印出节头表的项目数量和节头表的偏移位置，
+    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
     if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
-    printf ("  There are %d section headers, starting at offset 0x%lx:\n",elf_header.e_shnum, (unsigned long) elf_header.e_shoff);
+        printf ("  There are %d section headers, starting at offset 0x%lx:\n",elf_header.e_shnum, (unsigned long) elf_header.e_shoff);
 
+    //如果是32位的文件
     if (is_32bit_elf)
     {
+        //读取32位的节区头表，依据elf头中的信息
         if (! get_32bit_section_headers (file, elf_header.e_shnum))
             return 0;
     }

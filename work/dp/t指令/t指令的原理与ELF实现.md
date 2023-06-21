@@ -376,14 +376,27 @@ Symbol table '.symtab' contains 32 entries:
   得到符号表对应的符号为main，正好为最后一个局部符号（LOCAL）加1的符号。
 * Al：节区对齐4B，因为本节区是一个表，所以项的大小是固定的，需要进行对齐。
 
-
-
 ## 代码实现
 
 ### 算法思路
 
+
 ### 流程图
+
 
 ### 测试
 
 ### 代码详细解释
+
+get_32bit_section_headers
+
+get_data
+
+cmalloc
+
+BYTE_GET
+
+byte_get_little_endian
+
+
+process_section_headers

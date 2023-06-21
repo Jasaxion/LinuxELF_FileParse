@@ -80,7 +80,8 @@ typedef struct
   Elf32_Half	e_shentsize;		/* Section header table entry size */
   Elf32_Half	e_shnum;		/* Section header table entry count */
   Elf32_Half	e_shstrndx;		/* Section header string table index */
-} Elf32_Ehdr;
+} Elf32_E
+;
 
 typedef struct
 {
