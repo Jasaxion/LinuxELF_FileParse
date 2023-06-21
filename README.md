@@ -2,7 +2,7 @@
 
 > 本项目依托2023HZAU暑期综合实训的相关要求进行撰写，深入学习了ELF文件解析的相关只是，并使用C++语言详尽对于ELF文件进行解析。
 >
-> 项目成员包括：[**Jasaxion**](https://github.com/Jasaxion)、[Dxeee](https://github.com/Dxee-e)、[Guai2401](https://github.com/Guai001)
+> 项目成员包括：[Jasaxion](https://github.com/Jasaxion)、[Dxeee](https://github.com/Dxee-e)、[Guai2401](https://github.com/Guai001)
 
 项目文件结构:「标记为🔅为需要提交的项目」
 
