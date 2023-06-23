@@ -785,7 +785,7 @@ int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
 ```
 
 
-#### 4.4.3.get_data
+#### 4.4.3.从文件中读取数据结构
 
 在读取节区头表中有一个函数get_data，负责从文件中指定的偏移地址开始读取，将数据读取到内存中，并按照大小端的格式进行转换，是能够适应结构体的初始化。其代码的初始化如下：
 
@@ -860,7 +860,7 @@ void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size,
 ```
 
 
-#### 4.4.4.cmalloc
+#### 4.4.4.申请内存
 
 在从文件中读取数据到内存的函数get_data中，引用了一个函数cmalloc，其目的是为了在内存中申请空间，而做的一个溢出判断，避免申请内存时出现内存溢出的情况。其代码的注释如下：
 
@@ -879,7 +879,7 @@ void *ELF_process::cmalloc (size_t nmemb, size_t size)
 ```
 
 
-#### 4.4.5.BYTE_GET
+#### 4.4.5.大小端转换
 
 在get_32bit_section_headers中，有进行数据转换的宏函数BYTE_GET，用于读取到chat数组的原始小端数据进行转换，使得能够与结构体需要的信息进行匹配。
 
@@ -887,5 +887,279 @@ void *ELF_process::cmalloc (size_t nmemb, size_t size)
 #define BYTE_GET(field)  byte_get_little_endian (field,sizeof(field))
 ```
 
+其调用的是函数byte_get_little_endian，其注释代码如下：
 
-byte_get_little_endian
+```c
+//按照小端方式对字进行转换读取，转换为大端方式
+int byte_get_little_endian (unsigned char *field, int size)
+{
+    //依据字的长度进行转换
+    switch (size)
+    {
+    case 1:
+        return *field;
+    case 2:
+        return ((unsigned int)(field[0]))
+               | (((unsigned int)(field[1])) << 8);
+    case 3:
+        return  ((unsigned long) (field[0]))
+                |    (((unsigned long) (field[1])) << 8)
+                |    (((unsigned long) (field[2])) << 16);
+
+    case 4:
+        return  ((unsigned long) (field[0]))
+                |    (((unsigned long) (field[1])) << 8)
+                |    (((unsigned long) (field[2])) << 16)
+                |    (((unsigned long) (field[3])) << 24);
+    }
+
+}
+```
+
+
+## 5.大小端问题研究
+
+### 5.1.问题提出
+
+在实验过程中，我们发现代码中的大小端转换问题，即有两种方式的结构定义。第一种如下所示为Elf32_External_Shdr：
+
+```c
+/* 节区头表 */
+typedef struct {
+    unsigned char    sh_name[4];        /* Section name, index in string tbl */
+    unsigned char    sh_type[4];        /* Type of section */
+    unsigned char    sh_flags[4];        /* Miscellaneous section attributes */
+    unsigned char    sh_addr[4];        /* Section virtual addr at execution */
+    unsigned char    sh_offset[4];        /* Section file offset */
+    unsigned char    sh_size[4];        /* Size of section in bytes */
+    unsigned char    sh_link[4];        /* Index of another section */
+    unsigned char    sh_info[4];        /* Additional section information */
+    unsigned char    sh_addralign[4];    /* Section alignment */
+    unsigned char    sh_entsize[4];        /* Entry size if section holds table */
+} Elf32_External_Shdr;
+```
+
+第二种是Elf32_Shdr：
+
+```c
+typedef struct
+{
+  Elf32_Word	sh_name;		/* Section name (string tbl index) */
+  Elf32_Word	sh_type;		/* Section type */
+  Elf32_Word	sh_flags;		/* Section flags */
+  Elf32_Addr	sh_addr;		/* Section virtual addr at execution */
+  Elf32_Off	sh_offset;		/* Section file offset */
+  Elf32_Word	sh_size;		/* Section size in bytes */
+  Elf32_Word	sh_link;		/* Link to another section */
+  Elf32_Word	sh_info;		/* Additional section information */
+  Elf32_Word	sh_addralign;		/* Section alignment */
+  Elf32_Word	sh_entsize;		/* Entry size if section holds table */
+} Elf32_Shdr;
+```
+
+这两种定义方式一种是给从文件中入到Elf32_External_Shdr结构体，然后再显式转换为Elf32_Shdr结构体。
+
+这里我们提出了问题：问什么不直接读取到Elf32_Shdr结构体而需要经过一步转换？
+
+### 5.2.大小端转换研究
+
+对于这个问题，我们先来研究一下大小端的转换问题。本机器是intel的x86机器，是小端格式的机器，因此文件在存储中是小端格式。如果结构体中有一个4Byte的int类型数据0x12345678，那么它存储在机器中从低地址到高地址的内容为0x78 0x56 0x34 0x12，如果将他们直接读入到char[4]的数组中，得到的字节序是一样的，如果此时直接讲这个值转换为int，那么得到的int值是0x78563412，是完全错误的，因此需要进行转换为大端格式再传递给int初始化。当转换为大端格式后为0x12 0x34 0x56 0x78，此时再传递给int类型即可正确完成初始化。
+
+### 5.3.实验验证
+
+#### 5.3.1.步骤
+
+为了验证不通过char数组读取再转换大端也能够初始化结构体，我们做了如下的实验，直接将process_section_headers函数代码中的Elf32_Extrnal_Shdr替换为Elf32_Shdr，让它跳过转换的步骤，代码如下所示：
+
+```c
+int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
+{
+
+    //Elf32_External_Shdr * shdrs;
+    Elf32_Shdr * shdrs;
+    Elf32_Shdr* internal;
+
+    shdrs = (Elf32_Shdr *) get_data (NULL, file, elf_header.e_shoff,
+            elf_header.e_shentsize, num,
+            ("section headers"));
+    if (!shdrs)
+        return 0;
+      
+    printf("error1");
+
+    section_headers = (Elf32_Shdr *) cmalloc (num,sizeof (Elf32_Shdr));
+
+    if (section_headers == NULL)
+    {
+        printf("Out of memory\n");
+        return 0;
+    }
+
+    internal = section_headers;
+
+    for (int i = 0; i < num; i++, internal++)
+    {
+        internal->sh_name      = shdrs[i].sh_name;
+        internal->sh_type      = shdrs[i].sh_type;
+        internal->sh_flags     = shdrs[i].sh_flags;
+        internal->sh_addr      = shdrs[i].sh_addr;
+        internal->sh_offset    = shdrs[i].sh_offset;
+        internal->sh_size      = shdrs[i].sh_size;
+        internal->sh_link      = shdrs[i].sh_link;
+        internal->sh_info      = shdrs[i].sh_info;
+        internal->sh_addralign = shdrs[i].sh_addralign;
+        internal->sh_entsize   = shdrs[i].sh_entsize;
+    }
+
+    free (shdrs);
+
+    return 1;
+}
+```
+
+然后通过指令编译运行：
+
+```shell
+dp@ubuntu:~/Desktop/elf/7.9 (copy)$ g++ -m32 -o main main.cpp ELF_process.cpp -I ./
+```
+
+测试得到输出的结果如下：
+
+```shell
+dp@ubuntu:~/Desktop/elf/7.9 (copy)$ ./main testg-template.o -t
+error1  There are 23 section headers, starting at offset 0x748:
+start shdrerror1
+Section Headers:
+1###  [Nr] Name
+      Type            Addr     Off    Size   ES Flg Lk Inf Al
+      Flags
+  [ 0] 668
+##
+               
+NULL             00000000 000000 000000 00     0   0   0
+      [0]
+  [ 1] 73e
+##
+.group         
+GROUP            00000000 000034 00000c 04    20  24   4
+      [0]
+  [ 2] 73e
+##
+.group         
+GROUP            00000000 000040 000008 04    20  27   4
+      [0]
+  [ 3] 73e
+##
+.group         
+GROUP            00000000 000048 000008 04    20  22   4
+      [0]
+  [ 4] 687
+##
+.text          
+PROGBITS         00000000 000050 0000dc 00 06  0   0   1
+      [6]
+  [ 5] 683
+##
+.rel.text      
+REL              00000000 0005a8 000078 08 40 20   4   4
+      [40]
+  [ 6] 68d
+##
+.data          
+PROGBITS         00000000 00012c 000000 00 03  0   0   1
+      [3]
+  [ 7] 693
+##
+.bss           
+NOBITS           00000000 00012c 000001 00 03  0   0   1
+      [3]
+  [ 8] 698
+##
+.rodata        
+PROGBITS         00000000 00012c 000001 00 02  0   0   1
+      [2]
+  [ 9] 6a4
+##
+.text._Z3addIiET_S0_ 
+PROGBITS         00000000 00012d 00001b 00 206  0   0   1
+      [206]
+  [10] 6a0
+##
+.rel.text._Z3addIiET 
+REL              00000000 000620 000010 08 240 20   9   4
+      [240]
+  [11] 6c0
+##
+.init_array    
+INIT_ARRAY       00000000 000148 000004 04 03  0   0   4
+      [3]
+  [12] 6bc
+##
+.rel.init_array  
+REL              00000000 000630 000008 08 40 20  11   4
+      [40]
+  [13] 6cc
+##
+.text.__x86.get_pc_t 
+PROGBITS         00000000 00014c 000004 00 206  0   0   1
+      [206]
+  [14] 6e8
+##
+.text.__x86.get_pc_t 
+PROGBITS         00000000 000150 000004 00 206  0   0   1
+      [206]
+  [15] 704
+##
+.comment       
+PROGBITS         00000000 000154 00002c 01 30  0   0   1
+      [30]
+  [16] 70d
+##
+.note.GNU-stack  
+PROGBITS         00000000 000180 000000 00     0   0   1
+      [0]
+  [17] 71d
+##
+.note.gnu.property 
+NOTE             00000000 000180 00001c 00 02  0   0   4
+      [2]
+  [18] 734
+##
+.eh_frame      
+PROGBITS         00000000 00019c 0000d8 00 02  0   0   4
+      [2]
+  [19] 730
+##
+.rel.eh_frame  
+REL              00000000 000638 000030 08 40 20  18   4
+      [40]
+  [20] 669
+##
+.symtab        
+SYMTAB           00000000 000274 000200 10    21  21   4
+      [0]
+  [21] 671
+##
+.strtab        
+STRTAB           00000000 000474 000134 00     0   0   1
+      [0]
+  [22] 679
+##
+.shstrtab      
+STRTAB           00000000 000668 0000dd 00     0   0   1
+
+```
+
+可以发现，程序仍然正确得到的了输出结果。
+
+#### 5.4.2.结论
+
+通过上述的实验，可以发现可以直接使用Elf32_Hdr数据结构读取初始化文件字符流，不需要通过一步大小端转换。我们的猜想是正确的，代码是多余且不必要的。
+
+#### 5.4.3.分析讨论
+
+通过上述的实验，我们得出了一些原始代码中的优点缺点：
+
+* 需要进行大小端转换，因此，在大端机器上会失败，程序深度依赖我们所定义的大小端转换。如果使用c的结构体初始化，直接读入到结构体，将转换工作交给内核，不需要经过转换，内核可以直接将数据复制过去，毕竟即使我们转换了之后，存在内存中又会转换为小端格式。这种方式的通用性较差。
+* 另一方面，这种代码带来了额外的工作，代码冗余度较高。
+* 不过这种方式也有可取的一点就是，让我们更加了解学习了大小端格式。😂
