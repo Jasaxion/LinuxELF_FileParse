@@ -2242,7 +2242,8 @@ void ELF_process::get_32bit_rel(FILE *pFILE, unsigned int offset)
 
 void ELF_process::process_symbol_table(FILE *pFILE,int option)
 {
-    Elf32_Sym* sym;
+    Elf32_Sym* sym; 
+    /*定义32位符号表*/
     get_32bit_symbol(pFILE,option);
     unsigned int i;
     if(option & (1<<5))  //-s
@@ -2276,14 +2277,14 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
         }
     }
 }
-
+/*获取32位的符号表信息*/
 void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
 {
 
     Elf32_External_Sym* exty = (Elf32_External_Sym *) malloc(sym_dyn_size);
     Elf32_External_Sym* ext;
     Elf32_Sym* symbool;
-
+    /*获取动态段的偏移和大小*/
     fseek(pFILE,sym_dyn_offset,SEEK_SET);
     fread(exty,sym_dyn_size,1,pFILE);
 
