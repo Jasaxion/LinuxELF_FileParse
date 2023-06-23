@@ -1,9 +1,9 @@
 # 选项-t 的原理和具体实现
 
-## 选项-t 的介绍
+## 1.选项-t 的介绍
 
 
-#### Section 节区
+### 1.1.Section 节区
 
 如下图所示是一个ELF文件的示意图：
 
@@ -17,7 +17,7 @@
 2. 依据索引i，通过指针加法运算得到第i个节区对应的节区头表项；
 3. 读取节区头表项，得到节区i的名字、地址等信息。
 
-#### 节区头表数据结构定义
+### 1.2.节区头表数据结构定义
 
 节区头表是一个数组，它的子项由Elf32_Shdr类型构成。Elf32_Shdr的定义如下：
 
@@ -98,7 +98,7 @@ typedef struct
 | SHT_GROUP               | 关联符号表的节头索引。             | 关联符号表中条目的符号表索引。指定符号表条目的名称为节组提供签名。 |
 | SHT_SYMTAB_SHNDX        | 关联符号表节的节头索引。           | 0                                                                  |
 
-#### ELF头表中与节区头表相关成员
+### 1.3.ELF头表中与节区头表相关成员
 
 在ELF头表中，指明了节区头表的相关信息，如下表所示：
 
@@ -109,7 +109,7 @@ typedef struct
 | e_shentsize | 每个条目的字节大小         |
 | e_shstrndx  | 节区名表在节区头表中的位置 |
 
-## 选项-t 的作用
+## 2.选项-t 的作用
 
 ```
 readelf -t
@@ -118,7 +118,7 @@ readelf -t
 
 显示节区的详细信息，与-S是一样的效果。~~但是-S的排版好看一些。~~
 
-## 选项-t 显示的信息解释
+## 3.选项-t 显示的信息解释
 
 ```shell
 
@@ -376,27 +376,516 @@ Symbol table '.symtab' contains 32 entries:
   得到符号表对应的符号为main，正好为最后一个局部符号（LOCAL）加1的符号。
 * Al：节区对齐4B，因为本节区是一个表，所以项的大小是固定的，需要进行对齐。
 
-## 代码实现
+## 4.代码实现
 
-### 算法思路
+### 4.1.算法思路
+
+以Elf32位为例，我们要读取的是节区头表的每一个项，它的每一项的定义如下：
+
+```shell
+typedef struct
+{
+  Elf32_Word	sh_name;		/* 节名称（字符串表索引） */
+  Elf32_Word	sh_type;		/* 节类型 */
+  Elf32_Word	sh_flags;		/* 节标志 */
+  Elf32_Addr	sh_addr;		/* 执行时的节虚拟地址 */
+  Elf32_Off	sh_offset;		/* 节在文件中的偏移量 */
+  Elf32_Word	sh_size;		/* 节的字节大小 */
+  Elf32_Word	sh_link;		/* 链接到另一个节 */
+  Elf32_Word	sh_info;		/* 附加的节信息 */
+  Elf32_Word	sh_addralign;		/* 节对齐方式 */
+  Elf32_Word	sh_entsize;		/* 如果节保存表格，则是条目的大小 */
+} Elf32_Shdr;
+
+```
+
+节区头表是一个数组，数组的类型是Elf32_Shdr，因此直接根据节区头表的开始位置可以直接进行遍历访问。我们遍历每一个节区头表项，并输出打印它的结构体中的信息。特别的是sh_name索引需要通过访问shstrtab来获取真正的字符串名称。其实现步骤如下：
+
+1. 首先检查 ELF 头中的节头表项目数（e_shnum），如果为0，表示异常情况，可能是损坏的 ELF 文件头或者文件中没有节区。进行相应的处理并返回。
+3. 如果需要解析内容选项包括-t、-S或-e，则打印节头表的项目数量和偏移位置。
+4. 如果是32位的 ELF 文件，读取32位的节区头表。
+5. 读取字符串表（shstrtab），以便后续显示节区名称。
+6. 如果需要解析内容选项包括-t、-S或-e，则打印节头信息。
+7. 遍历节区头表的所有项，对于每个节区，进行如下处理：
+
+   * 计算节区名称在字符串表中的偏移地址。
+   * 读取节区名称。
+   * 打印节区名称。
+   * 打印节区类型。
+   * 打印节区的虚拟地址、文件中偏移地址、大小和条目大小。
+   * 如果节区有标志位，打印标志位；否则用空格填充。
+   * 打印 sh_link 和 sh_info。
+   * 如果节区名称是特定的动态链接信息表、动态链接重定位表、动态链接符号表或动态链接字符表，记录相应的偏移地址和大小。
+   * 如果需要解析内容选项包括-t，打印标志位。
+8. 如果需要解析内容选项包括-x或-u，则遍历节区头表的所有项，记录指定节区的索引。
+9. 返回成功。
+
+### 4.2.流程图
+
+按照上述的思想，设计的程序的流程图如下图所示：
+
+![1687487560681](image/t指令的原理与ELF实现/1687487560681.png)
+
+### 4.3.测试
+
+对于测试节区信息，我们编写了简单的程序，用于测试-t指令。程序没有什么特别的要求，因此，测试样例设计如下：
+
+```cpp
+#include<iostream>
+using namespace std;
+
+template<typename T>
+T add(T a, T b){
+        return a+b;
+}
+
+int main(){
+        int t = add(1,2);
+        cout<<t;
+        return 0;
+}
+
+```
+
+通过指令进行编译为32位目标文件，这样就可以通过readelf查看节区头表信息了。
+
+```shell
+dp@ubuntu:~/Desktop/elf/7.9/testg$ gcc -m32 testg-template.cpp -c
+```
+
+### 4.4.代码详细解释
+
+#### 4.4.1.处理打印节区头表
+
+处理打印节区头表在函数中定义为process_section_headers，它的功能是实现遍历节区头表并输出每项的结构体信息，另一方面，负责了依据sh_name索引查shstrtab表的任务和做一些参数如unwind的初始化等，如下面的代码注释：
+
+```c
+//解析和处理文件的节头表
+int ELF_process::process_section_headers(FILE *file,int option,char *target_section_name)
+{
+    //file：文件指针
+    //option：解析的内容选项
+    //target_section_name：目标节区索引，这个只有当-x指令时生效
+
+    Elf32_Shdr * section;
+    section = NULL;
+    char * string_table;
+
+    unsigned int  flag_shoff;
+
+    //依据ELF头判断节区头表的项目数，如果项目数为0那么存在异常
+    if (elf_header.e_shnum == 0)
+    {   
+        //依据elf头中的节区表头偏移地址是不是0，如果是0，那么就说明不存在节区表头，有异常
+        if (elf_header.e_shoff!=0)
+            printf("possibly corrupt ELF file header - it has a non-zero section header offset, but no section headers\n");
+        //节区表头存在但是没有表项，就说明文件中没有节区
+        else
+            printf ("\nThere are no sections in this file.\n");
+        return 1;
+    }
+
+    //如果指令为-t -S -e，那么就先打印出节头表的项目数量和节头表的偏移位置，
+    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
+    if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
+        printf ("  There are %d section headers, starting at offset 0x%lx:\n",elf_header.e_shnum, (unsigned long) elf_header.e_shoff);
+
+    //如果是32位的文件
+    if (is_32bit_elf)
+    {
+        //读取32位的节区头表，依据elf头中的信息
+        if (! get_32bit_section_headers (file, elf_header.e_shnum))
+            return 0;
+    }
+
+    /* Read in the string table, so that we have names to display.  */
+    //找到shstrtab的位置
+    //先判断shstrtab的节区索引是不是未定义，然后判断是不是小于总节区数
+    if (elf_header.e_shstrndx != SHN_UNDEF  && elf_header.e_shstrndx < elf_header.e_shnum)
+    {
+        //获取shstrtab节区，位置是节区头的偏移地址加上对应的索引，即节区头表中的第e_shstrndx个元素
+        section = section_headers + elf_header.e_shstrndx;
+
+        //保存shstrtab的偏移地址
+        flag_shoff = section->sh_offset;
+
+    }
+
+    //如果指令为-t -S -e，那么接下来打印节头信息
+    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
+    if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
+    {
+        //如果节头表项个数大于1，那么单词用复数
+	    if (elf_header.e_shnum > 1)
+            printf ("\nSection Headers:\n");
+        else
+            printf ("\nSection Header:\n");
+    }
+    section = section_headers;
+    unsigned int countC;
+    //只做32位文件的分析
+    if (is_32bit_elf)
+    {
+        //如果是-t指令，显示节区的详细信息
+        if(option & (1<<4)) //-t
+        {
+            //打印列名
+            printf("  [Nr] Name\n      Type            Addr     Off    Size   ES Flg Lk Inf Al\n      Flags\n");
+            //遍历节区头表的所有项，每一个项都对应一个节区
+            for (int i = 0; i < elf_header.e_shnum; i++, section++)
+            {
+                printf ("  [%2u] ", i);
+
+                //计算该节区名在shstrtab中的偏移地址
+                countC = flag_shoff + section->sh_name;
+
+                //将文件指针移动到这个地方
+                fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
+                char string_name[20];
+                //从文件中读取名字字符串
+                fread(string_name,20,1,file);
+
+        //判断节区名是不是"IA_64",记录unwind节区的索引
+		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
+		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
+
+                //打印输出节区名
+                printf("%-16s \n",string_name);
+
+                //打印输出节区类型
+                printf("%-16s ",get_section_type_name (section->sh_type));
+
+                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
+                printf("%6.8lx",(unsigned long) section->sh_addr);
+                printf ( " %6.6lx %6.6lx %2.2lx",
+                         (unsigned long) section->sh_offset,
+                         (unsigned long) section->sh_size,
+                         (unsigned long) section->sh_entsize);
+
+                //如果节区有标志位那么就打印输出标志
+                if (section->sh_flags)
+                    printf (" %2.2x ", section->sh_flags);
+                //否则用空格填充
+                else
+                    printf("%4c",32);
+
+                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
+                printf ("%2u ", section->sh_link);
+                printf ("%3u %3lu", section->sh_info,
+                        (unsigned long) section->sh_addralign);
+
+                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
+                if (strcmp(string_name,".dynamic")==0)
+                {
+                    dynamic_addr   = section->sh_offset;
+                    dynamic_size   = section->sh_size;
+                }
+
+                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
+                if (strcmp(string_name,".rel.dyn")==0)
+                {
+                    rel_dyn_offset = section->sh_offset;
+                    rel_dyn_size   = section->sh_size;
+                }
+
+                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
+                if(strcmp(string_name,".dynsym")==0)
+                {
+                    sym_dyn_offset = section->sh_offset;
+                    sym_dyn_size   = section->sh_size;
+                }
+
+                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
+                if(strcmp(string_name,".dynstr")==0)
+                {
+                    str_dyn_offset = section->sh_offset;
+                    str_dyn_size   = section->sh_size;
+                }
+
+                printf("\n");
+                //打印输出标志位
+                printf("      [%x]\n",section->sh_flags);
+            }
+        }
+        //如果是-S或-e指令，显示节头信息和全部头信息
+        else if((option & (1<<2) ) || (option & (1<<6)))        //-S || -e
+        {
+        
+            //打印列名
+            printf("  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
+            //遍历节区头表的所有项，每一个项都对应一个节区
+            for (int i = 0; i < elf_header.e_shnum; i++, section++)
+            {
+                printf ("  [%2u] ", i);
+
+                //计算该节区名在shstrtab中的偏移地址
+                countC = flag_shoff + section->sh_name;
+
+                //将文件指针移动到这个地方
+                fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
+                char string_name[20];
+                //从文件中读取名字字符串
+                fread(string_name,20,1,file);
+
+        //判断节区名是不是"IA_64",记录unwind节区的索引
+		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
+		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
+
+                //打印输出节区名
+                printf("%-16s ",string_name);
 
 
-### 流程图
+                //打印输出节区类型
+                printf ( " %-15.15s ",
+                         get_section_type_name (section->sh_type));
+
+                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
+                printf("%6.8lx",(unsigned long) section->sh_addr);
+                printf ( " %6.6lx %6.6lx %2.2lx",
+                         (unsigned long) section->sh_offset,
+                         (unsigned long) section->sh_size,
+                         (unsigned long) section->sh_entsize);
+
+                //如果节区有标志位那么就打印输出标志
+                if (section->sh_flags)
+                    printf (" %2.2x ", section->sh_flags);
+                //否则用空格填充
+                else
+                    printf("%4c",32);
+
+                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
+                printf ("%2u ", section->sh_link);
+                printf ("%3u %3lu", section->sh_info,
+                        (unsigned long) section->sh_addralign);
+
+                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
+                if (strcmp(string_name,".dynamic")==0)
+                {
+                    dynamic_addr   = section->sh_offset;
+                    dynamic_size   = section->sh_size;
+                }
+
+                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
+                if (strcmp(string_name,".rel.dyn")==0)
+                {
+                    rel_dyn_offset = section->sh_offset;
+                    rel_dyn_size   = section->sh_size;
+                }
+
+                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
+                if(strcmp(string_name,".dynsym")==0)
+                {
+                    sym_dyn_offset = section->sh_offset;
+                    sym_dyn_size   = section->sh_size;
+                }
+
+                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
+                if(strcmp(string_name,".dynstr")==0)
+                {
+                    str_dyn_offset = section->sh_offset;
+                    str_dyn_size   = section->sh_size;
+                }
+
+                printf("\n");
+
+            }
+        }
+        //如果是指令-x或-u，显示指定节区详细信息或.unwind节区详细信息
+        else if(option & (1<<14) || option & (1<<9))
+        {
+            //遍历节区头表的所有项，每一个项都对应一个节区
+            for (int i = 0; i < elf_header.e_shnum; i++, section++)
+            {
+                //计算该节区名在shstrtab中的偏移地址
+                countC = flag_shoff + section->sh_name;
+                //将文件指针移动到这个地方
+                fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
+                char string_name[20];
+                //从文件中读取名字字符串
+                fread(string_name,20,1,file);
+
+                //判断节区名是不是"IA_64",记录unwind节区的索引，这个是给-u用的
+                if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+                //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
+                if(!strcmp(string_name,target_section_name)) target_section_idx=i;
+            }
+        }
+    }
+
+    //成功返回
+    return 1;
+}
+```
 
 
-### 测试
 
-### 代码详细解释
+#### 4.4.2.获取节头表数据
 
-get_32bit_section_headers
+获取节头表数据在函数get_32bit_section_headers中定义，其功能是将节头表数据结构从文件中读取到内存中，并初始化完数据结构，最终返回给处理打印程序。其详细注释代码如下所示：
 
-get_data
+```c
+//读取32位ELF文件的节区头表
+int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
+{
+    //file：ELF文件指针
+    //num：节区头表的项目数
 
-cmalloc
+    Elf32_External_Shdr * shdrs;
+    Elf32_Shdr* internal;
 
-BYTE_GET
+    //利用elf头中的关于节头的信息，读取节头的数据，并强制转换为节头指针数据类型
+    //这里读取的shdrs是节头表数组的首地址
+    shdrs = (Elf32_External_Shdr *) get_data (NULL, file, elf_header.e_shoff,
+            elf_header.e_shentsize, num,
+            ("section headers"));
+    //如果节头数组为空，就表示读取失败了，所以直接返回
+    if (!shdrs)
+        return 0;
+
+    //申请内存存放节头数组，之前的读取的节头数组是
+    section_headers = (Elf32_Shdr *) cmalloc (num,sizeof (Elf32_Shdr));
+
+    //如果申请内存失败，返回内存溢出异常
+    if (section_headers == NULL)
+    {
+        printf("Out of memory\n");
+        return 0;
+    }
+
+    internal = section_headers;
+
+    //将从文件中读取的小端数据的节区头表数据转换为结构体的数据
+    //这里的转换有讲究的，因为我们读取使用的char[]数组读4个字节的，是不会进行转换的，会直接读取原始的小端数据
+    //这里需要将小端数据转换一下，变成正常的字数据
+    //那为什么不直接用uint_32t?
+    //因为保存的ELF文件不一定都是我定义的Elf32Word类型，变个名字就失效了
+    for (int i = 0; i < num; i++, internal++)
+    {
+        internal->sh_name      = BYTE_GET (shdrs[i].sh_name);
+        internal->sh_type      = BYTE_GET (shdrs[i].sh_type);
+        internal->sh_flags     = BYTE_GET (shdrs[i].sh_flags);
+        internal->sh_addr      = BYTE_GET (shdrs[i].sh_addr);
+        internal->sh_offset    = BYTE_GET (shdrs[i].sh_offset);
+        internal->sh_size      = BYTE_GET (shdrs[i].sh_size);
+        internal->sh_link      = BYTE_GET (shdrs[i].sh_link);
+        internal->sh_info      = BYTE_GET (shdrs[i].sh_info);
+        internal->sh_addralign = BYTE_GET (shdrs[i].sh_addralign);
+        internal->sh_entsize   = BYTE_GET (shdrs[i].sh_entsize);
+    }
+
+    free (shdrs);
+
+    return 1;
+}
+```
+
+
+#### 4.4.3.get_data
+
+在读取节区头表中有一个函数get_data，负责从文件中指定的偏移地址开始读取，将数据读取到内存中，并按照大小端的格式进行转换，是能够适应结构体的初始化。其代码的初始化如下：
+
+```c
+//将硬盘中文件中的数据提取到内存中的变量
+void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size, size_t nmemb,const char * reason)
+{
+    //var：存放数据的变量地址
+    //file：读取的文件
+    //offset：被读取的数据的偏移地址
+    //size：每个元素的大小
+    //nmemb：一共有多少个这样的元素
+    //reason：读取的原因，便于报错
+
+
+    //临时变量保存地址
+    void * mvar;
+
+    //如果每个元素的大小为0，或者有0个元素，那么读空
+    if (size == 0 || nmemb == 0)
+        return NULL;
+
+    //将文件的读取指针移动到偏移地址处
+    if (fseek (file, offset, SEEK_SET))
+    {
+        //error (_("Unable to seek to 0x%lx for %s\n"),
+        //  (unsigned long) archive_file_offset + offset, reason);
+        //若失败则返回读空
+        return NULL;
+    }
+
+    mvar = var;
+    //判断用户的变量是不是为空，如果为空，那么需要申请空间
+    if (mvar == NULL)
+    {
+        /* Check for overflow.  */
+        //检查是否溢出，即将要读取的元素个数大于等于了地址空间全部存放这个元素时的最大个数
+        if (nmemb < (~(size_t) 0 - 1) / size)
+            /* + 1 so that we can '\0' terminate invalid string table sections.  */
+            //如果没有溢出，那么就申请 元素大小*元素个数+1 的内存空间
+            //+1是为了最后添加'/0'给字符串节区用
+            mvar = malloc (size * nmemb + 1);
+
+        //如果此时变量指针还是空的，说明没有成功申请到内存，所以返回读空
+        if (mvar == NULL)
+        {
+            //error (_("Out of memory allocating 0x%lx bytes for %s\n"),
+            //(unsigned long)(size * nmemb), reason);
+            return NULL;
+        }
+
+        //申请成功的话，将最后一位（+1的那个字节）设置为'\0'字符串结束符
+        ((char *) mvar)[size * nmemb] = '\0';
+    }
+
+    //从文件读取指针处读取nmemb个size大小的数据到mvar所指向的内存空间中
+    if (fread (mvar, size, nmemb, file) != nmemb)
+    {
+        //若实际读取的元素个数和想要读取的元素个数不一致，那么就异常
+        //error (_("Unable to read in 0x%lx bytes of %s\n"),
+        // (unsigned long)(size * nmemb), reason);
+        //如果两个指针所指向的地址不一样，那么就释放内存，避免内存泄漏
+        if (mvar != var)
+            free (mvar);
+        //返回读空
+        return NULL;
+    }
+
+    //读取完毕，成功返回复制到内存中的数据
+    return mvar;
+}
+```
+
+
+#### 4.4.4.cmalloc
+
+在从文件中读取数据到内存的函数get_data中，引用了一个函数cmalloc，其目的是为了在内存中申请空间，而做的一个溢出判断，避免申请内存时出现内存溢出的情况。其代码的注释如下：
+
+```c
+//在内存中申请空间
+void *ELF_process::cmalloc (size_t nmemb, size_t size)
+{
+    /* Check for overflow.  */
+    //检查溢出，判断要申请的空间存放的元素个数 是否大于等于 假如全部装这个元素时能存放的最大元素个数
+    if (nmemb >= ~(size_t) 0 / size)
+        return NULL;
+    //如果没有溢出，那么就申请 元素大小*元素个数 的内存空间大小
+    else
+        return malloc (nmemb * size);
+}
+```
+
+
+#### 4.4.5.BYTE_GET
+
+在get_32bit_section_headers中，有进行数据转换的宏函数BYTE_GET，用于读取到chat数组的原始小端数据进行转换，使得能够与结构体需要的信息进行匹配。
+
+```c
+#define BYTE_GET(field)  byte_get_little_endian (field,sizeof(field))
+```
+
 
 byte_get_little_endian
-
-
-process_section_headers

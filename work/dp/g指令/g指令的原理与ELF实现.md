@@ -305,7 +305,7 @@ dp@ubuntu:~/Desktop/elf/7.9/testg$ ./main testg-template.o -g
 
 ### 流程图
 
-按照之前的思想，设计的程序的流程图如下图所示：
+按照上述的思想，设计的程序的流程图如下图所示：
 
 ![lct](image/g指令的原理与ELF实现/流程图.drawio.png)
 
