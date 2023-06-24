@@ -1553,6 +1553,7 @@ int ELF_process::process_program_headers(FILE *file)
     }
     else
     {
+        /*打印相关的信息*/
         if(elf_header.e_phnum>1)
             printf ("\nProgram Headers:\n");
         else
@@ -1565,7 +1566,7 @@ int ELF_process::process_program_headers(FILE *file)
 
     }
 
-
+    /*获取程序段头表信息*/
     if (! get_program_headers (file))
         return 0;
 
@@ -1577,7 +1578,7 @@ int ELF_process::process_program_headers(FILE *file)
     {
         printf ("  %-14.14s ", get_segment_type (segment->p_type));
 
-        if(is_32bit_elf)
+        if(is_32bit_elf) /*如果是32位的话，那么输出程序段的相关信息*/
         {
             printf ("0x%6.6x ", (unsigned int) segment->p_offset);
             printf ("0x%8.8x ", (unsigned int) segment->p_vaddr);
@@ -1598,7 +1599,7 @@ int ELF_process::process_program_headers(FILE *file)
     return 0;
 }
 
-
+/*获取aarch64程序段类型*/
 const char *ELF_process::get_aarch64_segment_type(unsigned long type)
 {
 
@@ -1613,7 +1614,7 @@ const char *ELF_process::get_aarch64_segment_type(unsigned long type)
     return NULL;
 
 }
-
+/*获取ARM程序段类型*/
 const char *ELF_process::get_arm_segment_type(unsigned long type)
 {
 
@@ -1628,7 +1629,7 @@ const char *ELF_process::get_arm_segment_type(unsigned long type)
     return NULL;
 
 }
-
+/*获取MIPS程序段信息*/
 const char *ELF_process::get_mips_segment_type(unsigned long type)
 {
 
@@ -1646,7 +1647,7 @@ const char *ELF_process::get_mips_segment_type(unsigned long type)
 
     return NULL;
 }
-
+/*获取PA-RISC程序段信息*/
 const char *ELF_process::get_parisc_segment_type(unsigned long type)
 {
     switch (type)
@@ -1697,7 +1698,7 @@ const char *ELF_process::get_parisc_segment_type(unsigned long type)
 
 
 }
-
+/*获取IA-64程序段信息*/
 const char *ELF_process::get_ia64_segment_type(unsigned long type)
 {
 
@@ -1722,7 +1723,7 @@ const char *ELF_process::get_ia64_segment_type(unsigned long type)
     return NULL;
 }
 #define PT_C6000_PHATTR        0x70000000
-
+/*获取TIC6x程序段信息*/
 const char *ELF_process::get_tic6x_segment_type(unsigned long type)
 {
     switch (type)
@@ -1737,7 +1738,7 @@ const char *ELF_process::get_tic6x_segment_type(unsigned long type)
 
 
 }
-
+/*获取程序头表*/
 int ELF_process::get_program_headers(FILE *file)
 {
 
@@ -1757,7 +1758,7 @@ int ELF_process::get_program_headers(FILE *file)
         printf("Out of memory\n");
         return 0;
     }
-
+    //获取32位程序头表
     if (is_32bit_elf
             ? get_32bit_program_headers (file, phdrs)
             : get_64bit_program_headers (file, phdrs64))
@@ -1773,16 +1774,16 @@ int ELF_process::get_program_headers(FILE *file)
 
 
 }
-
+/*获取32位程序头表*/
 int ELF_process::get_32bit_program_headers(FILE *file, Elf32_Phdr *pheaders)
 {
-
+    /*初始化结构体*/
     Elf32_External_Phdr* phdrs;
     Elf32_External_Phdr* external;
     Elf32_Phdr* internal;
 
     unsigned int i;
-
+    /*从ELF文件头中读取程序段的相关信息*/
     phdrs = (Elf32_External_Phdr *) get_data (NULL, file, elf_header.e_phoff,
             elf_header.e_phentsize,
             elf_header.e_phnum,
@@ -1809,7 +1810,7 @@ int ELF_process::get_32bit_program_headers(FILE *file, Elf32_Phdr *pheaders)
 
     return 1;
 }
-
+/*获取64位程序头表信息-暂未实现*/
 int ELF_process::get_64bit_program_headers(FILE *file, Elf64_Phdr *pheaders)
 {
 
@@ -2240,6 +2241,7 @@ void ELF_process::get_32bit_rel(FILE *pFILE, unsigned int offset)
     return;
 }
 
+//处理打印符号表
 void ELF_process::process_symbol_table(FILE *pFILE,int option)
 {
     Elf32_Sym* sym; 
@@ -2249,30 +2251,48 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
     /*判断option的第5位是否为1*/
     if(option & (1<<5))  //-s
     {
-	printf("Num  Value   NdX  other    info         Size          Name\n");
+        //打印列名
+	    printf("Num  Value   NdX  other    info         Size          Name\n");
+        //遍历符号表中的每一个符号项
         for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
         {
+            //打印符号在符号表中的索引
             printf("%2d: ",i);
+            //打印符号的值，这个值因不同的符号类型而异
             printf("%2.8x ",sym->st_value);
+            //打印符号所在的节区的索引
             printf("%-2.2x",sym->st_shndx);
+            //打印符号的其他信息
             printf("%-12.2x ",sym->st_other);
+            //打印符号的类型和绑定方式，低4为为类型，高28位为绑定方式
             printf("%-12.2x ",sym->st_info);
+            //打印符号的大小
             printf("%-12.2x ",sym->st_size);
+            //调用函数使用st_name符号名索引在strtab表中找到对应的符号名
             get_32bit_strdyn(pFILE,sym->st_name);
         }
     }
+<<<<<<< HEAD
+    //这个是打印统计信息的
+=======
     /*判断option的第13位是否为1*/
+>>>>>>> 9188e7c23a63c8f754a88ac11cc64a343182f39a
     if(option & (1<<13)) //-I
     {
-	printf("\nbucket list:\n");
-	printf("Num     Size          of total \n");
+        //输出列名和提示
+        printf("\nbucket list:\n");
+        printf("Num     Size          of total \n");
         int sum=0;
+        //遍历符号表中的每一个符号
         for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
         {
+            //统计全部符号占用的大小
             sum+=sym->st_size;
         }
+        //再次遍历符号表中的每一个符号
         for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
         {
+            //输出每个符号占用的空间的比例
             printf("%3d:    ",i);
             printf("%-12.2x ",sym->st_size);
             printf(" %f  \n",1.0*(sym->st_size)/sum);
@@ -2320,12 +2340,20 @@ void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
 
 }
 
+//查询符号名
 void ELF_process::get_32bit_strdyn(FILE *pFILE, Elf32_Word name)
 {
+    //pFILE：文件
+    //name：符号名在符号名表中的索引
 
+    //定义临时变量存放符号名
     unsigned char sym_name[1024];
+    //将文件的读取指针移动到符号名表的偏移地址处
     fseek(pFILE,(str_dyn_offset+name),SEEK_SET);
+    //将数据读入到临时变量中，
+    //读取长度为1024是任意的，因此每个符号后面都跟着一个'/0'结束符
     fread(sym_name,1024,1,pFILE);
+    //输出符号名
     printf("%s\n",sym_name);
 }
 
