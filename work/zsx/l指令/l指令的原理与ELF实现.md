@@ -10,6 +10,8 @@ ELF 程序头是对二进制文件中段的描述，是程序装载必须的一�
 
 - 可以通过引用原始的ELF头中名为： **e_phoff**(程序头表的偏移量)的偏移量来得到程序头表。
 
+基本的几个程序段内容如下：
+
 ### PT_LOAD段
 
 p_type描述了段的类型。 一个可执行文件至少要有一个PT_LOAD类型的段。 这类程序头描述的是可装载的段，
@@ -31,9 +33,21 @@ data段一般就是读写权限。 可以修改p_flags来让我们的程序权�
 
 此段一般位于elf文件的第一个段。PT_PHDR段保存了程序头表本身的位置和大小。 phdr表保存了所有的phdr对文件（以及内存镜像）中段的描述信息。
 
-### PT_INTERP段和LINK段
+### PT_INTERP段
 
+PT_INTERP：存放一个以null结尾的字符串位置和大小信息，是对解释器位置的描述；
 
+### PT_DYNAMIC
+
+动态段是动态链接可执行文件所特有的，包含了动态链接器所需要的一些信息，它包括以下内容
+
+- 运行时需要链接的共享库列表
+- 全局偏移表(GOT)
+- 重定位条目相关信息
+
+### PT_NOTE
+
+可以保存于特定供应商或者系统相关附加信息，这个段在程序运行时是不需要的，因为系统会假设可执行文件是本地的，这个段很容易被感染
 
 ## 选项- l 的作用
 
@@ -194,6 +208,99 @@ int ELF_process::process_program_headers(FILE *file)
 
 ### 流程图
 
+实现步骤简述：
 
+1. 解析ELF头部,获取程序头表和节区头表的位置和大小。ELF头部包含两个表的起始地址和大小。
+2. 读取程序头表,解析每个程序头,打印程序头信息。信息包括类型、偏移、虚拟地址、物理地址、大小等。
+3. 读取节区头表,解析每个节区头,打印节区头信息。信息包括名称、类型、地址、偏移、大小等。
+4. 根据需要打印额外信息,如节区内容摘要信息等。
+5. 如果文件是动态库,还需要解析和打印.dynamic节区中的动态链接信息。
+6. 打印编译器版本信息(如果有.comment节区)。
+
+实现的程序流程图如下：
+
+![image-20230624162900808](./l%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624162900808.png)
 
 ## 样例分析
+
+针对下面的代码：
+
+<img src="./l%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624112023695.png" alt="image-20230624112023695" style="zoom:50%;" />
+
+```
+[zhansx@iZwz9ag8659h7gzr9glt3wZ Mytest]$ ./main test-h -h
+ELF Header:
+  Magic:     7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX System V ABI
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0x8048500
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          15612 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         9
+  Size of section headers:           40 (bytes)
+  Number of section headers:         30
+  Section header string table index: 29
+```
+
+-l 得到的程序段信息如下：
+
+```
+[zhansx@iZwz9ag8659h7gzr9glt3wZ Mytest]$ ./main test-h -l
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x00120 0x00120 R   0x4
+  INTERP         0x000154 0x08048154 0x08048154 0x00013 0x00013 R   0x1
+  LOAD           0x000000 0x08048000 0x08048000 0x00900 0x00900 R E 0x1000
+  LOAD           0x000ee8 0x08049ee8 0x08049ee8 0x0013c 0x001e8 RW  0x1000
+  DYNAMIC        0x000ef4 0x08049ef4 0x08049ef4 0x00100 0x00100 RW  0x4
+  NOTE           0x000168 0x08048168 0x08048168 0x00044 0x00044 R   0x4
+  GNU_EH_FRAME   0x000780 0x08048780 0x08048780 0x0004c 0x0004c R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+  GNU_RELRO      0x000ee8 0x08049ee8 0x08049ee8 0x00118 0x00118 R   0x1
+```
+
+Flg标志的含义：
+
+1. R:可读段
+2. W:可写段
+3. X:可执行段
+
+Align对齐方式的含义：
+
+段对齐,表示段在文件和内存中的对齐方式。常见的对齐方式有:
+
+1. 0x1:1字节对齐
+
+2. 0x2:2字节对齐
+
+3. 0x4:4字节对齐
+
+4. 0x8:8字节对齐
+
+5. 0x10:16字节对齐
+
+   更大的对齐数表示更严格的对齐方式。
+
+   对齐方式会影响段在文件和内存中的起始地址,起始地址会是对齐数的整数倍。
+
+**如上可知，程序段的名字的内容如下：**
+
+- PHDR:程序头表段，描述ELF文件中的程序头表段。
+- INTERP:程序解释器名,描述动态链接器的路径名。
+- LOAD:可加载段,描述可映射到内存中的段信息。
+  - 这里有两个LOAD段,第一个是只读段,第二个是读写段。
+- DYNAMIC:动态链接信息,描述动态链接信息。
+- NOTE:注释段,包含一些注释信息。
+- GNU_EH_FRAME:异常帧信息,包含堆栈中的异常处理信息。
+- GNU_STACK:堆栈段,标记堆栈的可执行性。
+- GNU_RELRO:只读数据段,标记的数据段中的只读部分。
