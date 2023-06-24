@@ -75,25 +75,25 @@ typedef struct {
 /* Program header */
 /* 程序头表 */
 typedef struct {
-    unsigned char    p_type[4];        /* Identifies program segment type */
-    unsigned char    p_offset[4];        /* Segment file offset */
-    unsigned char    p_vaddr[4];        /* Segment virtual address */
-    unsigned char    p_paddr[4];        /* Segment physical address */
-    unsigned char    p_filesz[4];        /* Segment size in file */
-    unsigned char    p_memsz[4];        /* Segment size in memory */
-    unsigned char    p_flags[4];        /* Segment flags */
-    unsigned char    p_align[4];        /* Segment alignment, file & memory */
+    unsigned char    p_type[4];        /* 标识程序段类型 */
+    unsigned char    p_offset[4];        /* 分段文件偏移 */
+    unsigned char    p_vaddr[4];        /* 段虚拟地址 */
+    unsigned char    p_paddr[4];        /* 段物理地址 */
+    unsigned char    p_filesz[4];        /* 文件中的段大小 */
+    unsigned char    p_memsz[4];        /* 内存中的段大小 */
+    unsigned char    p_flags[4];        /* 段标志 */
+    unsigned char    p_align[4];        /* 段对齐、文件和内存 */
 } Elf32_External_Phdr;
 
 typedef struct {
-    unsigned char    p_type[4];        /* Identifies program segment type */
-    unsigned char    p_flags[4];        /* Segment flags */
-    unsigned char    p_offset[8];        /* Segment file offset */
-    unsigned char    p_vaddr[8];        /* Segment virtual address */
-    unsigned char    p_paddr[8];        /* Segment physical address */
-    unsigned char    p_filesz[8];        /* Segment size in file */
-    unsigned char    p_memsz[8];        /* Segment size in memory */
-    unsigned char    p_align[8];        /* Segment alignment, file & memory */
+    unsigned char    p_type[4];        /* 标识程序段类型 */
+    unsigned char    p_flags[4];        /* 段标志 */
+    unsigned char    p_offset[8];        /* 段文件偏移量 */
+    unsigned char    p_vaddr[8];        /* 段虚拟地址 */
+    unsigned char    p_paddr[8];        /* 段物理地址 */
+    unsigned char    p_filesz[8];        /* 文件中的段大小 */
+    unsigned char    p_memsz[8];        /* 内存中的段大小 */
+    unsigned char    p_align[8];        /* 段对齐、文件和内存 */
 } Elf64_External_Phdr;
 
 
