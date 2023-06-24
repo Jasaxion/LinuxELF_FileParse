@@ -45,20 +45,20 @@ typedef struct {
 } Elf64_External_Ehdr;
 
 /* Section header */
-
+/* 节区头表32位 */
 typedef struct {
-    unsigned char    sh_name[4];        /* Section name, index in string tbl */
-    unsigned char    sh_type[4];        /* Type of section */
-    unsigned char    sh_flags[4];        /* Miscellaneous section attributes */
-    unsigned char    sh_addr[4];        /* Section virtual addr at execution */
-    unsigned char    sh_offset[4];        /* Section file offset */
-    unsigned char    sh_size[4];        /* Size of section in bytes */
-    unsigned char    sh_link[4];        /* Index of another section */
-    unsigned char    sh_info[4];        /* Additional section information */
-    unsigned char    sh_addralign[4];    /* Section alignment */
-    unsigned char    sh_entsize[4];        /* Entry size if section holds table */
+    unsigned char    sh_name[4];        /* 节名，字符串 tbl 中的索引 */
+    unsigned char    sh_type[4];        /* 节头表的类型 */
+    unsigned char    sh_flags[4];        /* 杂项节头表的属性 */
+    unsigned char    sh_addr[4];        /* 执行时的节头虚拟地址*/
+    unsigned char    sh_offset[4];        /* 节头文件的偏移 */
+    unsigned char    sh_size[4];        /* 节的大小（以字节为单位） */
+    unsigned char    sh_link[4];        /* 另一节的索引*/
+    unsigned char    sh_info[4];        /* 附加节头信息 */
+    unsigned char    sh_addralign[4];    /* 节头对齐 */
+    unsigned char    sh_entsize[4];        /* 如果节头包含表的话条目大小 */
 } Elf32_External_Shdr;
-
+/* 节区头表64位 */
 typedef struct {
     unsigned char    sh_name[4];        /* Section name, index in string tbl */
     unsigned char    sh_type[4];        /* Type of section */
@@ -73,7 +73,7 @@ typedef struct {
 } Elf64_External_Shdr;
 
 /* Program header */
-
+/* 程序头表 */
 typedef struct {
     unsigned char    p_type[4];        /* Identifies program segment type */
     unsigned char    p_offset[4];        /* Segment file offset */

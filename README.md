@@ -1,5 +1,9 @@
 # LinuxELF_FileParse
 
+> 本项目依托2023HZAU暑期综合实训的相关要求进行撰写，深入学习了ELF文件解析的相关只是，并使用C++语言详尽对于ELF文件进行解析。
+>
+> 项目成员包括：[Jasaxion](https://github.com/Jasaxion)、[Dxeee](https://github.com/Dxee-e)、[Guai2401](https://github.com/Guai001)
+
 项目文件结构:「标记为🔅为需要提交的项目」
 
 ```–主文件夹
@@ -7,7 +11,7 @@
 --Document\
 ----相关的资料和要求
 --Pre_code\
-----19 往届代码
+----学习代码
 --code\🔅
 ----ELF_process.cpp ELF实现代码「注释与学习其原理」
 ----ELF_process.h 定义ELF所需要的数据结构
@@ -17,6 +21,10 @@
 ----daily_log\🔅 每日日志，请按照所给模板进行编写
 ----presentation\🔅 答辩PPT以及答辩框架稿子
 ----report\🔅 最终实训报告
+--work\
+----zsx\ 负责的相关部分，包含-h/-S/-l
+----dp\ 负责的相关部分，包含g/s/t
+----ls\ 负责的相关部分，包含e/n/r
 ```
 
 

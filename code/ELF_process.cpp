@@ -175,25 +175,28 @@ int ELF_process::Process_object(FILE *file,int option,char * target_section_name
         print_xout(file, target_section_idx);
     }
 }
-
+//获取文件头信息的其他部分
+//下面的代码为32位信息显示
+//只支持32位的信息显示目前
 int ELF_process::get_file_header(FILE *file)
 {
 
-    /* Read in the identity array.  */
+    /* 读取ELF信息，前16个字节，只有当读取成功了才往后面走  */
     if (fread (elf_header.e_ident, EI_NIDENT, 1, file) != 1)
         return 0;
 
-    /* For now we only support 32 bit and 64 bit ELF files.  */
+    /* 目前只是实现了32位环境下的表示  */
     is_32bit_elf = (elf_header.e_ident[EI_CLASS] != ELFCLASS64);
 
-    /* Read in the rest of the header.  */
+    /* 读取头部信息的其他部分  */
     if (is_32bit_elf)
     {
 
-        Elf32_External_Ehdr ehdr32;
+        Elf32_External_Ehdr ehdr32; //文件头信息的其他部分
+        //读取信息除了前16个字节，从后一个字节开始读取
         if (fread (ehdr32.e_type, sizeof (ehdr32) - EI_NIDENT, 1, file) != 1)
             return 0;
-
+        //读取对应部分的字节信息
         elf_header.e_type      = BYTE_GET (ehdr32.e_type);
         elf_header.e_machine   = BYTE_GET (ehdr32.e_machine);
         elf_header.e_version   = BYTE_GET (ehdr32.e_version);
@@ -364,10 +367,11 @@ void *ELF_process::cmalloc (size_t nmemb, size_t size)
     else
         return malloc (nmemb * size);
 }
-
+/*读取文件头*/
+/*头文件信息在Magic 数中*/
 int ELF_process::process_file_header(void)
 {
-
+    /*判断是否Magic是否存在问题*/
     if (   elf_header.e_ident[EI_MAG0] != ELFMAG0
             || elf_header.e_ident[EI_MAG1] != ELFMAG1
             || elf_header.e_ident[EI_MAG2] != ELFMAG2
@@ -376,11 +380,11 @@ int ELF_process::process_file_header(void)
         printf("Not an ELF file - it has the wrong magic bytes at the start\n");
         return 0;
     }
-
+    /*输出M相关参数*/
     printf("ELF Header:\n");
     printf("  Magic:     ");
     for (int i = 0; i <EI_NIDENT ; ++i)
-        printf ("%2.2x ", elf_header.e_ident[i]);
+        printf ("%2.2x ", elf_header.e_ident[i]); /*读取Magic 数*/
     printf("\n");
     printf("  Class:                             %s\n",
            get_elf_class(elf_header.e_ident[EI_CLASS]));
@@ -437,11 +441,11 @@ int ELF_process::process_file_header(void)
 
 }
 
-
+/*从magic数中，提取elf_class信息*/
 const char *ELF_process::get_elf_class (unsigned int elf_class)
 {
     static char buff[32];
-
+    /*判断elf_class处的字节信息*/
     switch (elf_class)
     {
     case ELFCLASSNONE:
@@ -455,11 +459,11 @@ const char *ELF_process::get_elf_class (unsigned int elf_class)
         return buff;
     }
 }
-
+/*获取data的编码信息*/
 const char *ELF_process::get_data_encoding (unsigned int encoding)
 {
     static char buff[32];
-
+    /*表示数据存储的方式，大端、小端*/
     switch (encoding)
     {
     case ELFDATANONE:
@@ -514,6 +518,7 @@ const char *ELF_process::get_osabi_name (unsigned int osabi)
     snprintf (buff, sizeof (buff), ("<unknown: %x>"), osabi);
     return buff;
 }
+/*返回文件类型*/
 
 const char *ELF_process::get_file_type(unsigned e_type)
 {
@@ -525,15 +530,15 @@ const char *ELF_process::get_file_type(unsigned e_type)
     case ET_NONE:
         return "NONE (None)";
     case ET_REL:
-        return "REL (Relocatable file)";
+        return "REL (Relocatable file)"; //重定向文件
     case ET_EXEC:
-        return "EXEC (Executable file)";
+        return "EXEC (Executable file)"; //执行文件
     case ET_DYN:
-        return "DYN (Shared object file)";
+        return "DYN (Shared object file)"; //共享文件
     case ET_CORE:
-        return "CORE (Core file)";
+        return "CORE (Core file)"; //核心文件
 
-    default:
+    default: //如果不是如上三种文件，那么返回具体的处理器信息或操作系统信息
         if ((e_type >= ET_LOPROC) && (e_type <= ET_HIPROC))
             snprintf(buff, sizeof(buff), ("Processor Specific: (%x)"), e_type);
         else if ((e_type >= ET_LOOS) && (e_type <= ET_HIOS))
@@ -544,7 +549,7 @@ const char *ELF_process::get_file_type(unsigned e_type)
 
     }
 }
-
+/*获取机器类型*/
 const char *ELF_process::get_machine_name(unsigned e_machine)
 {
 
@@ -749,78 +754,105 @@ int ELF_process::process_section_headers(FILE *file,int option,char *target_sect
     }
 
     /* Read in the string table, so that we have names to display.  */
+    //找到shstrtab的位置
+    //先判断shstrtab的节区索引是不是未定义，然后判断是不是小于总节区数
     if (elf_header.e_shstrndx != SHN_UNDEF  && elf_header.e_shstrndx < elf_header.e_shnum)
     {
+        //获取shstrtab节区，位置是节区头的偏移地址加上对应的索引，即节区头表中的第e_shstrndx个元素
         section = section_headers + elf_header.e_shstrndx;
 
+        //保存shstrtab的偏移地址
         flag_shoff = section->sh_offset;
 
     }
 
+    //如果指令为-t -S -e，那么接下来打印节头信息
+    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
     if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
     {
-	if (elf_header.e_shnum > 1)
+        //如果节头表项个数大于1，那么单词用复数
+	    if (elf_header.e_shnum > 1)
             printf ("\nSection Headers:\n");
         else
             printf ("\nSection Header:\n");
     }
     section = section_headers;
     unsigned int countC;
+    //只做32位文件的分析
     if (is_32bit_elf)
     {
+        //如果是-t指令，显示节区的详细信息
         if(option & (1<<4)) //-t
         {
+            //打印列名
             printf("  [Nr] Name\n      Type            Addr     Off    Size   ES Flg Lk Inf Al\n      Flags\n");
+            //遍历节区头表的所有项，每一个项都对应一个节区
             for (int i = 0; i < elf_header.e_shnum; i++, section++)
             {
                 printf ("  [%2u] ", i);
 
+                //计算该节区名在shstrtab中的偏移地址
                 countC = flag_shoff + section->sh_name;
 
+                //将文件指针移动到这个地方
                 fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
                 char string_name[20];
+                //从文件中读取名字字符串
                 fread(string_name,20,1,file);
 
+        //判断节区名是不是"IA_64",记录unwind节区的索引
 		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
 		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
 
+                //打印输出节区名
                 printf("%-16s \n",string_name);
 
+                //打印输出节区类型
                 printf("%-16s ",get_section_type_name (section->sh_type));
 
+                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
                 printf("%6.8lx",(unsigned long) section->sh_addr);
                 printf ( " %6.6lx %6.6lx %2.2lx",
                          (unsigned long) section->sh_offset,
                          (unsigned long) section->sh_size,
                          (unsigned long) section->sh_entsize);
 
+                //如果节区有标志位那么就打印输出标志
                 if (section->sh_flags)
                     printf (" %2.2x ", section->sh_flags);
+                //否则用空格填充
                 else
                     printf("%4c",32);
 
+                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
                 printf ("%2u ", section->sh_link);
                 printf ("%3u %3lu", section->sh_info,
                         (unsigned long) section->sh_addralign);
 
+                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
                 if (strcmp(string_name,".dynamic")==0)
                 {
                     dynamic_addr   = section->sh_offset;
                     dynamic_size   = section->sh_size;
                 }
 
+                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
                 if (strcmp(string_name,".rel.dyn")==0)
                 {
                     rel_dyn_offset = section->sh_offset;
                     rel_dyn_size   = section->sh_size;
                 }
 
+                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
                 if(strcmp(string_name,".dynsym")==0)
                 {
                     sym_dyn_offset = section->sh_offset;
                     sym_dyn_size   = section->sh_size;
                 }
 
+                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
                 if(strcmp(string_name,".dynstr")==0)
                 {
                     str_dyn_offset = section->sh_offset;
@@ -828,65 +860,85 @@ int ELF_process::process_section_headers(FILE *file,int option,char *target_sect
                 }
 
                 printf("\n");
+                //打印输出标志位
                 printf("      [%x]\n",section->sh_flags);
             }
         }
+        //如果是-S或-e指令，显示节头信息和全部头信息
         else if((option & (1<<2) ) || (option & (1<<6)))        //-S || -e
         {
-
+            
+            //打印列名
             printf("  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
+            //遍历节区头表的所有项，每一个项都对应一个节区
             for (int i = 0; i < elf_header.e_shnum; i++, section++)
             {
                 printf ("  [%2u] ", i);
 
+                //计算该节区名在shstrtab中的偏移地址
                 countC = flag_shoff + section->sh_name;
 
+                //将文件指针移动到这个地方
                 fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
                 char string_name[20];
+                //从文件中读取名字字符串
                 fread(string_name,20,1,file);
 
+        //判断节区名是不是"IA_64",记录unwind节区的索引
 		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
 		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
 
+                //打印输出节区名
                 printf("%-16s ",string_name);
 
 
+                //打印输出节区类型
                 printf ( " %-15.15s ",
                          get_section_type_name (section->sh_type));
 
+                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
                 printf("%6.8lx",(unsigned long) section->sh_addr);
                 printf ( " %6.6lx %6.6lx %2.2lx",
                          (unsigned long) section->sh_offset,
                          (unsigned long) section->sh_size,
                          (unsigned long) section->sh_entsize);
 
+                //如果节区有标志位那么就打印输出标志
                 if (section->sh_flags)
                     printf (" %2.2x ", section->sh_flags);
+                //否则用空格填充
                 else
                     printf("%4c",32);
 
+                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
                 printf ("%2u ", section->sh_link);
                 printf ("%3u %3lu", section->sh_info,
                         (unsigned long) section->sh_addralign);
 
+                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
                 if (strcmp(string_name,".dynamic")==0)
                 {
                     dynamic_addr   = section->sh_offset;
                     dynamic_size   = section->sh_size;
                 }
 
+                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
                 if (strcmp(string_name,".rel.dyn")==0)
                 {
                     rel_dyn_offset = section->sh_offset;
                     rel_dyn_size   = section->sh_size;
                 }
 
+                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
                 if(strcmp(string_name,".dynsym")==0)
                 {
                     sym_dyn_offset = section->sh_offset;
                     sym_dyn_size   = section->sh_size;
                 }
 
+                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
                 if(strcmp(string_name,".dynstr")==0)
                 {
                     str_dyn_offset = section->sh_offset;
@@ -897,24 +949,33 @@ int ELF_process::process_section_headers(FILE *file,int option,char *target_sect
 
             }
         }
-	else if(option & (1<<14) || option & (1<<9))
-	{
-	    for (int i = 0; i < elf_header.e_shnum; i++, section++)
-	    {
-		countC = flag_shoff + section->sh_name;
+        //如果是指令-x或-u，显示指定节区详细信息或.unwind节区详细信息
+        else if(option & (1<<14) || option & (1<<9))
+        {
+            //遍历节区头表的所有项，每一个项都对应一个节区
+            for (int i = 0; i < elf_header.e_shnum; i++, section++)
+            {
+                //计算该节区名在shstrtab中的偏移地址
+                countC = flag_shoff + section->sh_name;
+                //将文件指针移动到这个地方
                 fseek(file,countC,SEEK_SET);
+                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
                 char string_name[20];
+                //从文件中读取名字字符串
                 fread(string_name,20,1,file);
 
-		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
-		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
-	    }
-	}
+                //判断节区名是不是"IA_64",记录unwind节区的索引，这个是给-u用的
+                if(!strcmp(string_name,"IA_64")) unwind_idx=i;
+                //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
+                if(!strcmp(string_name,target_section_name)) target_section_idx=i;
+            }
+        }
     }
 
+    //成功返回
     return 1;
 }
-
+/*获取节的类型名*/
 const char *ELF_process::get_section_type_name(unsigned int sh_type)
 {
 
@@ -1049,7 +1110,7 @@ const char *ELF_process::get_section_type_name(unsigned int sh_type)
         return buff;
     }
 }
-
+/*获取MIPS节类型名*/
 const char *ELF_process::get_mips_section_type_name(unsigned int sh_type)
 {
 
@@ -1138,7 +1199,7 @@ const char *ELF_process::get_mips_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取PA-RISC类型名*/
 const char *ELF_process::get_parisc_section_type_name(unsigned int sh_type)
 {
 
@@ -1164,7 +1225,7 @@ const char *ELF_process::get_parisc_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取IA-64类型名*/
 const char *ELF_process::get_ia64_section_type_name(unsigned int sh_type)
 {
 
@@ -1202,7 +1263,7 @@ const char *ELF_process::get_ia64_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取 x86 64节类型名*/
 const char *ELF_process::get_x86_64_section_type_name(unsigned int sh_type)
 {
 
@@ -1217,7 +1278,7 @@ const char *ELF_process::get_x86_64_section_type_name(unsigned int sh_type)
     return NULL;
 
 }
-
+/*获取AArch64节类型名*/
 const char *ELF_process::get_aarch64_section_type_name(unsigned int sh_type)
 {
 
@@ -1234,7 +1295,7 @@ const char *ELF_process::get_aarch64_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取ARM架构的节类型名*/
 const char *ELF_process::get_arm_section_type_name(unsigned int sh_type)
 {
 
@@ -1255,7 +1316,7 @@ const char *ELF_process::get_arm_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取Tic6X架构的节类型名*/
 const char *ELF_process::get_tic6x_section_type_name(unsigned int sh_type)
 {
 
@@ -1284,7 +1345,7 @@ const char *ELF_process::get_tic6x_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取MSP430x架构的节类型名*/
 const char *ELF_process::get_msp430x_section_type_name(unsigned int sh_type)
 {
 
@@ -1304,7 +1365,7 @@ const char *ELF_process::get_msp430x_section_type_name(unsigned int sh_type)
 
 
 
-
+/*获取段段类型*/
 const char *ELF_process::get_segment_type(unsigned int p_type)
 {
 
@@ -2181,9 +2242,11 @@ void ELF_process::get_32bit_rel(FILE *pFILE, unsigned int offset)
 
 void ELF_process::process_symbol_table(FILE *pFILE,int option)
 {
-    Elf32_Sym* sym;
+    Elf32_Sym* sym; 
+    /*定义32位符号表*/
     get_32bit_symbol(pFILE,option);
     unsigned int i;
+    /*判断option的第5位是否为1*/
     if(option & (1<<5))  //-s
     {
 	printf("Num  Value   NdX  other    info         Size          Name\n");
@@ -2198,6 +2261,7 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
             get_32bit_strdyn(pFILE,sym->st_name);
         }
     }
+    /*判断option的第13位是否为1*/
     if(option & (1<<13)) //-I
     {
 	printf("\nbucket list:\n");
@@ -2215,14 +2279,14 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
         }
     }
 }
-
+/*获取32位的符号表信息*/
 void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
 {
 
     Elf32_External_Sym* exty = (Elf32_External_Sym *) malloc(sym_dyn_size);
     Elf32_External_Sym* ext;
     Elf32_Sym* symbool;
-
+    /*获取动态段的偏移和大小*/
     fseek(pFILE,sym_dyn_offset,SEEK_SET);
     fread(exty,sym_dyn_size,1,pFILE);
 
