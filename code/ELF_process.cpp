@@ -1553,6 +1553,7 @@ int ELF_process::process_program_headers(FILE *file)
     }
     else
     {
+        /*打印相关的信息*/
         if(elf_header.e_phnum>1)
             printf ("\nProgram Headers:\n");
         else
@@ -1565,7 +1566,7 @@ int ELF_process::process_program_headers(FILE *file)
 
     }
 
-
+    /*获取程序段头表信息*/
     if (! get_program_headers (file))
         return 0;
 
@@ -1577,7 +1578,7 @@ int ELF_process::process_program_headers(FILE *file)
     {
         printf ("  %-14.14s ", get_segment_type (segment->p_type));
 
-        if(is_32bit_elf)
+        if(is_32bit_elf) /*如果是32位的话，那么输出程序段的相关信息*/
         {
             printf ("0x%6.6x ", (unsigned int) segment->p_offset);
             printf ("0x%8.8x ", (unsigned int) segment->p_vaddr);
@@ -1598,7 +1599,7 @@ int ELF_process::process_program_headers(FILE *file)
     return 0;
 }
 
-
+/*获取aarch64程序段类型*/
 const char *ELF_process::get_aarch64_segment_type(unsigned long type)
 {
 
@@ -1613,7 +1614,7 @@ const char *ELF_process::get_aarch64_segment_type(unsigned long type)
     return NULL;
 
 }
-
+/*获取ARM程序段类型*/
 const char *ELF_process::get_arm_segment_type(unsigned long type)
 {
 
@@ -1628,7 +1629,7 @@ const char *ELF_process::get_arm_segment_type(unsigned long type)
     return NULL;
 
 }
-
+/*获取MIPS程序段信息*/
 const char *ELF_process::get_mips_segment_type(unsigned long type)
 {
 
@@ -1646,7 +1647,7 @@ const char *ELF_process::get_mips_segment_type(unsigned long type)
 
     return NULL;
 }
-
+/*获取PA-RISC程序段信息*/
 const char *ELF_process::get_parisc_segment_type(unsigned long type)
 {
     switch (type)
@@ -1697,7 +1698,7 @@ const char *ELF_process::get_parisc_segment_type(unsigned long type)
 
 
 }
-
+/*获取IA-64程序段信息*/
 const char *ELF_process::get_ia64_segment_type(unsigned long type)
 {
 
@@ -1722,7 +1723,7 @@ const char *ELF_process::get_ia64_segment_type(unsigned long type)
     return NULL;
 }
 #define PT_C6000_PHATTR        0x70000000
-
+/*获取TIC6x程序段信息*/
 const char *ELF_process::get_tic6x_segment_type(unsigned long type)
 {
     switch (type)
@@ -1737,7 +1738,7 @@ const char *ELF_process::get_tic6x_segment_type(unsigned long type)
 
 
 }
-
+/*获取程序头表*/
 int ELF_process::get_program_headers(FILE *file)
 {
 
@@ -1757,7 +1758,7 @@ int ELF_process::get_program_headers(FILE *file)
         printf("Out of memory\n");
         return 0;
     }
-
+    //获取32位程序头表
     if (is_32bit_elf
             ? get_32bit_program_headers (file, phdrs)
             : get_64bit_program_headers (file, phdrs64))
@@ -1773,16 +1774,16 @@ int ELF_process::get_program_headers(FILE *file)
 
 
 }
-
+/*获取32位程序头表*/
 int ELF_process::get_32bit_program_headers(FILE *file, Elf32_Phdr *pheaders)
 {
-
+    /*初始化结构体*/
     Elf32_External_Phdr* phdrs;
     Elf32_External_Phdr* external;
     Elf32_Phdr* internal;
 
     unsigned int i;
-
+    /*从ELF文件头中读取程序段的相关信息*/
     phdrs = (Elf32_External_Phdr *) get_data (NULL, file, elf_header.e_phoff,
             elf_header.e_phentsize,
             elf_header.e_phnum,
@@ -1809,7 +1810,7 @@ int ELF_process::get_32bit_program_headers(FILE *file, Elf32_Phdr *pheaders)
 
     return 1;
 }
-
+/*获取64位程序头表信息-暂未实现*/
 int ELF_process::get_64bit_program_headers(FILE *file, Elf64_Phdr *pheaders)
 {
 
