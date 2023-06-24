@@ -2299,19 +2299,26 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
         }
     }
 }
-/*获取32位的符号表信息*/
+//从文件中读取ELF32符号表
 void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
 {
+    //pFILE：文件
+    //option：选项，附加参数
 
+    //临时变量存储符号表
     Elf32_External_Sym* exty = (Elf32_External_Sym *) malloc(sym_dyn_size);
     Elf32_External_Sym* ext;
     Elf32_Sym* symbool;
-    /*获取动态段的偏移和大小*/
+    
+    //将文件读取指针移动至动态符号表偏移位置
     fseek(pFILE,sym_dyn_offset,SEEK_SET);
+    //读取符号表大小的数据到内存中
     fread(exty,sym_dyn_size,1,pFILE);
 
+    //未读取到返回
     if (!exty)
         return;
+    //遍历符号表，统计符号表项目数
     for (ext = exty, sym_nent = 0;(char *) ext < (char *) exty + sym_dyn_size;ext++)
     {
         sym_nent++;
@@ -2319,21 +2326,22 @@ void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
     if(option &(1<<5))
     printf ("\nSymbol tabel '.dynsym' contains %d entries\n",sym_nent);
 
+    //为动态符号表申请空间
     sym_dyn = (Elf32_Sym *) cmalloc (sym_nent,sizeof (* exty));
 
+    //遍历，赋值过去，这里是进行的大小端转换，可以参考之间的实验，结构体的问题才需要这样子做
     for (ext = exty, symbool = sym_dyn ;symbool < sym_dyn + sym_nent;ext++, symbool++)
     {
-
         symbool->st_name       = BYTE_GET(ext->st_name);
         symbool->st_info       = BYTE_GET(ext->st_info);
         symbool->st_other      = BYTE_GET(ext->st_other);
         symbool->st_shndx      = BYTE_GET(ext->st_shndx);
         symbool->st_size       = BYTE_GET(ext->st_size);
         symbool->st_value      = BYTE_GET(ext->st_value);
-
         //printf("%2.2x ",sym_dyn->st_name);
     }
 
+    //释放临时变量内存
     free(exty);
 
     return;

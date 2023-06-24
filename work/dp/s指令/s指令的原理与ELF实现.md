@@ -529,8 +529,7 @@ typedef struct
 
 ### 4.2.流程图
 
-按照上述的思想，设计的程序的流程图如下图所示：
-
+按照上述的思想，设计的程序的流程图如下图所示：![1687586547276](image/s指令的原理与ELF实现/1687586547276.png)
 
 ### 4.3.测试
 
@@ -640,7 +639,62 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
 }
 ```
 
-#### 4.4.2.查询符号名
+#### 4.4.2.读取符号表
+
+从硬盘文件中读取ELF32符号表到内存中在函数get_32bit_symbol中定义，其功能是通过ELF文件，以及在之前遍历过程中找到的符号表的偏移地址和大小，将其加载到内存当中。其注释代码如下：
+
+```c
+//从文件中读取ELF32符号表
+void ELF_process::get_32bit_symbol(FILE *pFILE,int option)
+{
+    //pFILE：文件
+    //option：选项，附加参数
+
+    //临时变量存储符号表
+    Elf32_External_Sym* exty = (Elf32_External_Sym *) malloc(sym_dyn_size);
+    Elf32_External_Sym* ext;
+    Elf32_Sym* symbool;
+  
+    //将文件读取指针移动至动态符号表偏移位置
+    fseek(pFILE,sym_dyn_offset,SEEK_SET);
+    //读取符号表大小的数据到内存中
+    fread(exty,sym_dyn_size,1,pFILE);
+
+    //未读取到返回
+    if (!exty)
+        return;
+    //遍历符号表，统计符号表项目数
+    for (ext = exty, sym_nent = 0;(char *) ext < (char *) exty + sym_dyn_size;ext++)
+    {
+        sym_nent++;
+    }
+    if(option &(1<<5))
+    printf ("\nSymbol tabel '.dynsym' contains %d entries\n",sym_nent);
+
+    //为动态符号表申请空间
+    sym_dyn = (Elf32_Sym *) cmalloc (sym_nent,sizeof (* exty));
+
+    //遍历，赋值过去，这里是进行的大小端转换，可以参考之间的实验，结构体的问题才需要这样子做
+    for (ext = exty, symbool = sym_dyn ;symbool < sym_dyn + sym_nent;ext++, symbool++)
+    {
+        symbool->st_name       = BYTE_GET(ext->st_name);
+        symbool->st_info       = BYTE_GET(ext->st_info);
+        symbool->st_other      = BYTE_GET(ext->st_other);
+        symbool->st_shndx      = BYTE_GET(ext->st_shndx);
+        symbool->st_size       = BYTE_GET(ext->st_size);
+        symbool->st_value      = BYTE_GET(ext->st_value);
+        //printf("%2.2x ",sym_dyn->st_name);
+    }
+
+    //释放临时变量内存
+    free(exty);
+
+    return;
+
+}
+```
+
+#### 4.4.3.查询符号名
 
 查询符号名在函数get_32bit_strdyn中定义，其功能是通过符号名索引，在符号名表strtab中查找对应的字符串，最终将这个字符串进行输出。其注释代码如下：
 
@@ -660,134 +714,5 @@ void ELF_process::get_32bit_strdyn(FILE *pFILE, Elf32_Word name)
     fread(sym_name,1024,1,pFILE);
     //输出符号名
     printf("%s\n",sym_name);
-}
-```
-
-#### 4.4.3.从文件中读取数据结构
-
-在读取节区头表中有一个函数get_data，负责从文件中指定的偏移地址开始读取，将数据读取到内存中，并按照大小端的格式进行转换，是能够适应结构体的初始化。其代码的初始化如下：
-
-```c
-//将硬盘中文件中的数据提取到内存中的变量
-void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size, size_t nmemb,const char * reason)
-{
-    //var：存放数据的变量地址
-    //file：读取的文件
-    //offset：被读取的数据的偏移地址
-    //size：每个元素的大小
-    //nmemb：一共有多少个这样的元素
-    //reason：读取的原因，便于报错
-
-
-    //临时变量保存地址
-    void * mvar;
-
-    //如果每个元素的大小为0，或者有0个元素，那么读空
-    if (size == 0 || nmemb == 0)
-        return NULL;
-
-    //将文件的读取指针移动到偏移地址处
-    if (fseek (file, offset, SEEK_SET))
-    {
-        //error (_("Unable to seek to 0x%lx for %s\n"),
-        //  (unsigned long) archive_file_offset + offset, reason);
-        //若失败则返回读空
-        return NULL;
-    }
-
-    mvar = var;
-    //判断用户的变量是不是为空，如果为空，那么需要申请空间
-    if (mvar == NULL)
-    {
-        /* Check for overflow.  */
-        //检查是否溢出，即将要读取的元素个数大于等于了地址空间全部存放这个元素时的最大个数
-        if (nmemb < (~(size_t) 0 - 1) / size)
-            /* + 1 so that we can '\0' terminate invalid string table sections.  */
-            //如果没有溢出，那么就申请 元素大小*元素个数+1 的内存空间
-            //+1是为了最后添加'/0'给字符串节区用
-            mvar = malloc (size * nmemb + 1);
-
-        //如果此时变量指针还是空的，说明没有成功申请到内存，所以返回读空
-        if (mvar == NULL)
-        {
-            //error (_("Out of memory allocating 0x%lx bytes for %s\n"),
-            //(unsigned long)(size * nmemb), reason);
-            return NULL;
-        }
-
-        //申请成功的话，将最后一位（+1的那个字节）设置为'\0'字符串结束符
-        ((char *) mvar)[size * nmemb] = '\0';
-    }
-
-    //从文件读取指针处读取nmemb个size大小的数据到mvar所指向的内存空间中
-    if (fread (mvar, size, nmemb, file) != nmemb)
-    {
-        //若实际读取的元素个数和想要读取的元素个数不一致，那么就异常
-        //error (_("Unable to read in 0x%lx bytes of %s\n"),
-        // (unsigned long)(size * nmemb), reason);
-        //如果两个指针所指向的地址不一样，那么就释放内存，避免内存泄漏
-        if (mvar != var)
-            free (mvar);
-        //返回读空
-        return NULL;
-    }
-
-    //读取完毕，成功返回复制到内存中的数据
-    return mvar;
-}
-```
-
-#### 4.4.4.申请内存
-
-在从文件中读取数据到内存的函数get_data中，引用了一个函数cmalloc，其目的是为了在内存中申请空间，而做的一个溢出判断，避免申请内存时出现内存溢出的情况。其代码的注释如下：
-
-```c
-//在内存中申请空间
-void *ELF_process::cmalloc (size_t nmemb, size_t size)
-{
-    /* Check for overflow.  */
-    //检查溢出，判断要申请的空间存放的元素个数 是否大于等于 假如全部装这个元素时能存放的最大元素个数
-    if (nmemb >= ~(size_t) 0 / size)
-        return NULL;
-    //如果没有溢出，那么就申请 元素大小*元素个数 的内存空间大小
-    else
-        return malloc (nmemb * size);
-}
-```
-
-#### 4.4.5.大小端转换
-
-在get_32bit_section_headers中，有进行数据转换的宏函数BYTE_GET，用于读取到chat数组的原始小端数据进行转换，使得能够与结构体需要的信息进行匹配。
-
-```c
-#define BYTE_GET(field)  byte_get_little_endian (field,sizeof(field))
-```
-
-其调用的是函数byte_get_little_endian，其注释代码如下：
-
-```c
-//按照小端方式对字进行转换读取，转换为大端方式
-int byte_get_little_endian (unsigned char *field, int size)
-{
-    //依据字的长度进行转换
-    switch (size)
-    {
-    case 1:
-        return *field;
-    case 2:
-        return ((unsigned int)(field[0]))
-               | (((unsigned int)(field[1])) << 8);
-    case 3:
-        return  ((unsigned long) (field[0]))
-                |    (((unsigned long) (field[1])) << 8)
-                |    (((unsigned long) (field[2])) << 16);
-
-    case 4:
-        return  ((unsigned long) (field[0]))
-                |    (((unsigned long) (field[1])) << 8)
-                |    (((unsigned long) (field[2])) << 16)
-                |    (((unsigned long) (field[3])) << 24);
-    }
-
 }
 ```
