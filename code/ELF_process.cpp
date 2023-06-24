@@ -975,7 +975,7 @@ int ELF_process::process_section_headers(FILE *file,int option,char *target_sect
     //成功返回
     return 1;
 }
-
+/*获取节的类型名*/
 const char *ELF_process::get_section_type_name(unsigned int sh_type)
 {
 
@@ -1110,7 +1110,7 @@ const char *ELF_process::get_section_type_name(unsigned int sh_type)
         return buff;
     }
 }
-
+/*获取MIPS节类型名*/
 const char *ELF_process::get_mips_section_type_name(unsigned int sh_type)
 {
 
@@ -1199,7 +1199,7 @@ const char *ELF_process::get_mips_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取PA-RISC类型名*/
 const char *ELF_process::get_parisc_section_type_name(unsigned int sh_type)
 {
 
@@ -1225,7 +1225,7 @@ const char *ELF_process::get_parisc_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取IA-64类型名*/
 const char *ELF_process::get_ia64_section_type_name(unsigned int sh_type)
 {
 
@@ -1263,7 +1263,7 @@ const char *ELF_process::get_ia64_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取 x86 64节类型名*/
 const char *ELF_process::get_x86_64_section_type_name(unsigned int sh_type)
 {
 
@@ -1278,7 +1278,7 @@ const char *ELF_process::get_x86_64_section_type_name(unsigned int sh_type)
     return NULL;
 
 }
-
+/*获取AArch64节类型名*/
 const char *ELF_process::get_aarch64_section_type_name(unsigned int sh_type)
 {
 
@@ -1295,7 +1295,7 @@ const char *ELF_process::get_aarch64_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取ARM架构的节类型名*/
 const char *ELF_process::get_arm_section_type_name(unsigned int sh_type)
 {
 
@@ -1316,7 +1316,7 @@ const char *ELF_process::get_arm_section_type_name(unsigned int sh_type)
     }
     return NULL;
 }
-
+/*获取Tic6X架构的节类型名*/
 const char *ELF_process::get_tic6x_section_type_name(unsigned int sh_type)
 {
 
@@ -1345,7 +1345,7 @@ const char *ELF_process::get_tic6x_section_type_name(unsigned int sh_type)
 
 
 }
-
+/*获取MSP430x架构的节类型名*/
 const char *ELF_process::get_msp430x_section_type_name(unsigned int sh_type)
 {
 
@@ -1365,7 +1365,7 @@ const char *ELF_process::get_msp430x_section_type_name(unsigned int sh_type)
 
 
 
-
+/*获取段段类型*/
 const char *ELF_process::get_segment_type(unsigned int p_type)
 {
 
@@ -2247,6 +2247,7 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
     /*定义32位符号表*/
     get_32bit_symbol(pFILE,option);
     unsigned int i;
+    /*判断option的第5位是否为1*/
     if(option & (1<<5))  //-s
     {
         //打印列名
@@ -2270,7 +2271,11 @@ void ELF_process::process_symbol_table(FILE *pFILE,int option)
             get_32bit_strdyn(pFILE,sym->st_name);
         }
     }
+<<<<<<< HEAD
     //这个是打印统计信息的
+=======
+    /*判断option的第13位是否为1*/
+>>>>>>> 9188e7c23a63c8f754a88ac11cc64a343182f39a
     if(option & (1<<13)) //-I
     {
         //输出列名和提示
