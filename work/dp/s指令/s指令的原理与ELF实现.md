@@ -172,6 +172,69 @@ readelf -s
 ## 3.选项-s 显示的信息解释
 
 ```shell
+Symbol table '.dynsym' contains 7 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __cxa_finalize
+     2: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
+     3: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+     4: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
+     5: 0000114d    20 FUNC    GLOBAL DEFAULT   10 testfun
+     6: 00004010     4 OBJECT  GLOBAL DEFAULT   19 libGLobal
+
+Symbol table '.symtab' contains 51 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000174     0 SECTION LOCAL  DEFAULT    1 
+     2: 00000198     0 SECTION LOCAL  DEFAULT    2 
+     3: 000001b4     0 SECTION LOCAL  DEFAULT    3 
+     4: 000001d8     0 SECTION LOCAL  DEFAULT    4 
+     5: 00000248     0 SECTION LOCAL  DEFAULT    5 
+     6: 000002b0     0 SECTION LOCAL  DEFAULT    6 
+     7: 00001000     0 SECTION LOCAL  DEFAULT    7 
+     8: 00001030     0 SECTION LOCAL  DEFAULT    8 
+     9: 00001040     0 SECTION LOCAL  DEFAULT    9 
+    10: 00001050     0 SECTION LOCAL  DEFAULT   10 
+    11: 0000117c     0 SECTION LOCAL  DEFAULT   11 
+    12: 00002000     0 SECTION LOCAL  DEFAULT   12 
+    13: 00002034     0 SECTION LOCAL  DEFAULT   13 
+    14: 00003f40     0 SECTION LOCAL  DEFAULT   14 
+    15: 00003f44     0 SECTION LOCAL  DEFAULT   15 
+    16: 00003f48     0 SECTION LOCAL  DEFAULT   16 
+    17: 00003ff0     0 SECTION LOCAL  DEFAULT   17 
+    18: 00004000     0 SECTION LOCAL  DEFAULT   18 
+    19: 0000400c     0 SECTION LOCAL  DEFAULT   19 
+    20: 00004014     0 SECTION LOCAL  DEFAULT   20 
+    21: 00000000     0 SECTION LOCAL  DEFAULT   21 
+    22: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    23: 00001060     0 FUNC    LOCAL  DEFAULT   10 deregister_tm_clones
+    24: 000010a0     0 FUNC    LOCAL  DEFAULT   10 register_tm_clones
+    25: 000010f0     0 FUNC    LOCAL  DEFAULT   10 __do_global_dtors_aux
+    26: 00004014     1 OBJECT  LOCAL  DEFAULT   20 completed.7623
+    27: 00003f44     0 OBJECT  LOCAL  DEFAULT   15 __do_global_dtors_aux_fin
+    28: 00001140     0 FUNC    LOCAL  DEFAULT   10 frame_dummy
+    29: 00003f40     0 OBJECT  LOCAL  DEFAULT   14 __frame_dummy_init_array_
+    30: 00000000     0 FILE    LOCAL  DEFAULT  ABS B.c
+    31: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    32: 000020d8     0 OBJECT  LOCAL  DEFAULT   13 __FRAME_END__
+    33: 00000000     0 FILE    LOCAL  DEFAULT  ABS 
+    34: 00003f48     0 OBJECT  LOCAL  DEFAULT   16 _DYNAMIC
+    35: 00004014     0 OBJECT  LOCAL  DEFAULT   19 __TMC_END__
+    36: 00001175     0 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.ax
+    37: 0000400c     0 OBJECT  LOCAL  DEFAULT   19 __dso_handle
+    38: 00001149     0 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.dx
+    39: 00001000     0 FUNC    LOCAL  DEFAULT    7 _init
+    40: 00001050     4 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.bx
+    41: 00002000     0 NOTYPE  LOCAL  DEFAULT   12 __GNU_EH_FRAME_HDR
+    42: 0000117c     0 FUNC    LOCAL  DEFAULT   11 _fini
+    43: 00004000     0 OBJECT  LOCAL  DEFAULT   18 _GLOBAL_OFFSET_TABLE_
+    44: 00001161    20 FUNC    LOCAL  DEFAULT   10 testfun2
+    45: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __cxa_finalize
+    46: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
+    47: 00004010     4 OBJECT  GLOBAL DEFAULT   19 libGLobal
+    48: 0000114d    20 FUNC    GLOBAL DEFAULT   10 testfun
+    49: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+    50: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
 
 ```
 
