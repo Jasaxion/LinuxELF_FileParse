@@ -1,10 +1,8 @@
 # 选项- n的原理和具体实现
 
-
-
 ## 1 选项- n 的介绍
 
-> 读取注释与版本信息
+> 读取注释与版本信息。
 
 类型为PT_NOTE的段往往会包含类型为SHT_NOTE的节，SHT_NOTE节可以为目标文件提供一些特别的信息，用于给其它的程序检查目标文件的一致性和兼容性。这些信息我们称为“注释信息”，这样的节称为“注释节(notesection)”，所在的段即为“注释段(note segment)”。注释信息可以包含任意数量的“注释项”，每一个注释项是一个数组，数组的每一个成员大小为4字节，格式依目标处理器而定。下图解释了注释信息是如何组织的：
 
@@ -18,11 +16,13 @@
 
 注释段的示例：
 
-<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624085433248.png" alt="image-20230624085433248" style="zoom:50%;" />
+<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624085433248.png" alt="image-20230624085433248" style="zoom: 33%;" />
 
-- 这里解释一下注释节的设计逻辑。注释节中包含三种信息：名字(name/namesz)、类型(type)和描述(desc/descsz)。名字用于区别不同的信息提供者，比如不同的厂商，”ABCComputerCompany”或”XYZComputerCompany”。
-- 一个信息提供者可能会提供很多种信息，为了区别，把信息分类，即给每一种信息加一个ID，或者说是类型type。比如”ABCComputerCompany”公司规定，1号分类代表这里的信息是一种花的名字，2号分类代表这里的信息是一种香水的名字，……。
-- 有了name和type的约束，desc的内容才有意义，才知道它所描述的是什么。比如，如果没有前面的name和type信息的话，如果只知道desc包含一个字符串”Daisy”，你就不知道这到底是表示雏菊花，还是Daisy香水，或者是一个女孩的名字。而如果你知道它的name和type分别是”ABCComputerCompany”和2的话，显然”Daisy”说的是香水。
+- 注释节的设计逻辑，注释节中包含三种信息，名字(name/namesz)、类型(type)和描述(desc/descsz)。
+  - 名字用于区别不同的信息提供者，比如不同的厂商。
+  - 一个信息提供者可能会提供很多种信息，为了区别，把信息分类，即给每一种信息加一个ID，或者说是类型type。
+  - 有了name和type的约束，desc的内容才有意义，才知道它所描述的是什么。
+
 
 ## 2 选项- n的作用
 
@@ -31,19 +31,80 @@
 
 ## 3 选项- n显示的信息解释
 
+1. 打印注释的来源。
+2. 打印注释的所有者、数据大小和描述信息。
+3. 根据注释类型进行检查，如果适用，打印附加信息。
+   - 如果注释类型为NT_GNU_BUILD_ID，打印构建ID。
+   - 如果注释类型为ELF_NOTE_PAGESIZE_HINT，打印页面大小。
+   - 如果注释类型为NT_GNU_ABI_TAG，打印操作系统OS和ABI版本。
+   - 如果注释类型为NT_GNU_HWCAP，打印启用或禁用状态。
+   - 如果注释类型为NT_GNU_GOLD_VERSION，打印版本信息。
+   - 如果注释类型为NT_GNU_PROPERTY_TYPE_0，打印属性和特性信息。
 
+如测试用例显示的信息：
 
+```
+Displaying notes found in: .note.ABI-tag
+  所有者             Data size	Description
+  GNU                  0x00000010	NT_GNU_ABI_TAG (ABI version tag)
+    OS: Linux, ABI: 3.2.0
 
+Displaying notes found in: .note.gnu.build-id
+  所有者             Data size	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: 175854961c4e4fed11f3854059093c8666cc0e00
+
+Displaying notes found in: .gnu.build.attributes
+  所有者             Data size	Description
+  GA$<version>3p1113   0x00000010	OPEN
+    Applies to region from 0x40074f to 0x40074f (.annobin_init.c)
+  GA$<tool>running gcc 0x00000000	OPEN
+    Applies to region from 0x40074f
+```
+
+在节 ".note.ABI-tag" 中找到的注释：
+
+- 所有者（Owner）：GNU
+- 数据大小（Data size）：0x00000010
+- 描述（Description）：NT_GNU_ABI_TAG（ABI版本标签）
+- 操作系统（OS）：Linux，ABI版本：3.2.0
+
+在节 ".note.gnu.build-id" 中找到的注释：
+
+- 所有者（Owner）：GNU
+- 数据大小（Data size）：0x00000014
+- 描述（Description）：NT_GNU_BUILD_ID（唯一的构建ID位串）
+- 构建ID（Build ID）：175854961c4e4fed11f3854059093c8666cc0e00
+
+在节 ".gnu.build.attributes" 中找到的注释：
+
+- 所有者（Owner）：GA$<version>3p1113
+- 数据大小（Data size）：0x00000010
+- 描述（Description）：OPEN
+- 适用范围：从0x40074f到0x40074f的区域（.annobin_init.c）
 
 ## 4 代码实现
 
 ### 4.1算法思路
 
-
+> 1. 遍历节头部，查找注释节。
+> 2. 如果找到注释节，则设置标记为true。
+> 3. 读取注释头部。
+> 4. 计算注释名称的指针。
+> 5. 打印找到的注释的偏移量和长度。
+> 6. 打印注释的所有者、数据大小和描述信息。
+> 7. 根据注释类型进行检查，如果适用，打印附加信息。
+>    - 如果注释类型为NT_GNU_BUILD_ID，打印构建ID。
+>    - 如果注释类型为ELF_NOTE_PAGESIZE_HINT，打印页面大小。
+>    - 如果注释类型为NT_GNU_ABI_TAG，打印操作系统和ABI版本。
+>    - 如果注释类型为NT_GNU_HWCAP，打印启用或禁用状态。
+>    - 如果注释类型为NT_GNU_GOLD_VERSION，打印版本信息。
+>    - 如果注释类型为NT_GNU_PROPERTY_TYPE_0，打印属性和特性信息。
+> 8. 返回。
 
 ### 4.2 流程图
 
-
+<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624151357162.png" alt="image-20230624151357162" style="zoom:67%;" />
 
 ### 4.3 代码详细解释
 
@@ -173,7 +234,7 @@ int ELF_process::process_note(FILE *file) {
 
 
 
-##### `get_32bit_nhdr`
+##### 4.3.2.1 `get_32bit_nhdr`
 
 > 主要功能是从ELF文件中获取32位的ELF笔记头，并将获取到的字段值转换为合适的字节顺序。它帮助解析ELF文件中的笔记头信息，并进行必要的转换，以便后续的处理和分析。
 >
@@ -229,6 +290,103 @@ int ELF_process::get_32bit_nhdr(FILE *file,unsigned int offset,unsigned int size
 }
 ```
 
+##### 4.3.2.2 `get_data`
+
+> 从硬盘中的文件中提取数据并存储到内存中的变量中。
+>
+> 1. 函数`ELF_process::get_data`用于将硬盘中文件的数据提取到内存中的变量。
+> 2. 函数参数说明：
+>    - `var`：存放数据的变量地址。
+>    - `file`：要读取的文件。
+>    - `offset`：被读取数据的偏移地址。
+>    - `size`：每个元素的大小。
+>    - `nmemb`：一共有多少个这样的元素。
+>    - `reason`：读取的原因，便于报错。
+> 3. `mvar`是一个临时变量，用于保存地址。
+> 4. 如果每个元素的大小为0或者元素个数为0，则返回`NULL`表示读取空。
+> 5. 将文件的读取指针移动到偏移地址处。如果移动失败，则返回`NULL`表示读取空。
+> 6. 将`mvar`设置为`var`，即将存放数据的变量地址赋给`mvar`。
+> 7. 如果用户的变量为空（`var`为`NULL`），则需要申请内存空间。
+>    - 检查是否会溢出，即将要读取的元素个数乘以大小是否大于地址空间可以存放的最大元素个数。
+>    - 如果不会溢出，分配`size * nmemb + 1`个字节的内存空间。
+>    - 如果分配失败，返回`NULL`表示读取空。
+>    - 如果分配成功，将最后一个字节设置为`'\0'`，作为字符串结束符。
+> 8. 从文件的读取指针处读取`nmemb`个大小为`size`的数据到`mvar`指向的内存空间中。
+>    - 如果实际读取的元素个数与期望读取的元素个数不一致，表示读取异常。
+>    - 如果`mvar`和`var`指向的地址不一样，释放`mvar`指向的内存空间，避免内存泄漏。
+>    - 返回`NULL`表示读取空。
+> 9. 读取完成后，成功返回复制到内存中的数据，即`mvar`的地址。
+
+```c++
+//将硬盘中文件中的数据提取到内存中的变量
+void * ELF_process::get_data (void * var, FILE * file, long offset, size_t size, size_t nmemb,const char * reason)
+{
+    //var：存放数据的变量地址
+    //file：读取的文件
+    //offset：被读取的数据的偏移地址
+    //size：每个元素的大小
+    //nmemb：一共有多少个这样的元素
+    //reason：读取的原因，便于报错
+
+
+    //临时变量保存地址
+    void * mvar;
+
+    //如果每个元素的大小为0，或者有0个元素，那么读空
+    if (size == 0 || nmemb == 0)
+        return NULL;
+
+    //将文件的读取指针移动到偏移地址处
+    if (fseek (file, offset, SEEK_SET))
+    {
+        //error (_("Unable to seek to 0x%lx for %s\n"),
+        //  (unsigned long) archive_file_offset + offset, reason);
+        //若失败则返回读空
+        return NULL;
+    }
+
+    mvar = var;
+    //判断用户的变量是不是为空，如果为空，那么需要申请空间
+    if (mvar == NULL)
+    {
+        /* Check for overflow.  */
+        //检查是否溢出，即将要读取的元素个数大于等于了地址空间全部存放这个元素时的最大个数
+        if (nmemb < (~(size_t) 0 - 1) / size)
+            /* + 1 so that we can '\0' terminate invalid string table sections.  */
+            //如果没有溢出，那么就申请 元素大小*元素个数+1 的内存空间
+            //+1是为了最后添加'/0'给字符串节区用
+            mvar = malloc (size * nmemb + 1);
+
+        //如果此时变量指针还是空的，说明没有成功申请到内存，所以返回读空
+        if (mvar == NULL)
+        {
+            //error (_("Out of memory allocating 0x%lx bytes for %s\n"),
+            //(unsigned long)(size * nmemb), reason);
+            return NULL;
+        }
+
+        //申请成功的话，将最后一位（+1的那个字节）设置为'\0'字符串结束符
+        ((char *) mvar)[size * nmemb] = '\0';
+    }
+
+    //从文件读取指针处读取nmemb个size大小的数据到mvar所指向的内存空间中
+    if (fread (mvar, size, nmemb, file) != nmemb)
+    {
+        //若实际读取的元素个数和想要读取的元素个数不一致，那么就异常
+        //error (_("Unable to read in 0x%lx bytes of %s\n"),
+        // (unsigned long)(size * nmemb), reason);
+        //如果两个指针所指向的地址不一样，那么就释放内存，避免内存泄漏
+        if (mvar != var)
+            free (mvar);
+        //返回读空
+        return NULL;
+    }
+
+    //读取完毕，成功返回复制到内存中的数据
+    return mvar;
+}
+```
+
 
 
 #### 4.3.2  ```process_version()```
@@ -270,50 +428,48 @@ int ELF_process::process_version(FILE *file){
 }
 ```
 
-
-
 ## 5 测试样例
-
-
 
 ### 5.1 编写`n-test-1.cpp:`
 
-```
+```c++
 #include <iostream>
 
 using namespace std;
 
+template<typename T>
+T add(T a,T b){
+  return a+b;
+}
+
 int main(){
-  string out="这是关于‘-n’指令的调试";
-  for(int num=1; num<=3;num++){
-        cout<<out<<"-"<<num<<endl;
-  }
+  int t=add(1,2);
+  cout<<t<<endl;
   return 0;
 }
 ```
 
-#### 5.1.1 编译产生.so：
+### 5.2 结果分析：
 
-```
-g++ -o n-test-1.so n-test-1.cpp
-```
+<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624161154185.png" alt="image-20230624161154185" style="zoom: 50%;" />
 
-用`./main n-test-1.so -n`查看、版本信息
+在节 ".note.ABI-tag" 中找到的注释：
 
-<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624010600185.png" alt="image-20230624010600185" style="zoom:50%;" />
+- 所有者（Owner）：GNU
+- 数据大小（Data size）：0x00000010
+- 描述（Description）：NT_GNU_ABI_TAG（ABI版本标签）
+- 操作系统（OS）：Linux，ABI版本：3.2.0
 
-显示：<font color='red'>There are no sections in this file.</font>。
+在节 ".note.gnu.build-id" 中找到的注释：
 
-#### 5.1.2 `32`位编译产生.so：
+- 所有者（Owner）：GNU
+- 数据大小（Data size）：0x00000014
+- 描述（Description）：NT_GNU_BUILD_ID（唯一的构建ID位串）
+- 构建ID（Build ID）：175854961c4e4fed11f3854059093c8666cc0e00
 
-```
-g++ -m32 -o n-test-1.so n-test-1.cpp
-```
+在节 ".gnu.build.attributes" 中找到的注释：
 
-用`./main n-test-1.so -n`查看、版本信息
-
-显示：<font color='red'>段错误（核心已转储）</font>。
-
-<img src="n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.assets/image-20230624010651508.png" alt="image-20230624010651508" style="zoom:50%;" />
-
-### 5.1缺一个含“注释节”信息+版本号信息的测试用例
+- 所有者（Owner）：GA$<version>3p1113
+- 数据大小（Data size）：0x00000010
+- 描述（Description）：OPEN
+- 适用范围：从0x40074f到0x40074f的区域（.annobin_init.c）
