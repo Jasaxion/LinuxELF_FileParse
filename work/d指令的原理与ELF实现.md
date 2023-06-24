@@ -28,6 +28,10 @@ typedef struct
    - DT_REL：动态链接重定位表位置
 2. d_val or d_ptr：是一个联合体，要么表示一个值，要么表示一个地址，具体的情况因动态表的类型不同而不同
 
+### 1.2.静态链接
+
+### 1.3.动态链接
+
 ## 2.选项-d 的作用
 
 ```shell
@@ -75,6 +79,69 @@ Dynamic section at offset 0x2ed8 contains 28 entries:
  0x6ffffffa (RELCOUNT)                   4
  0x00000000 (NULL)                       0x0
 ```
+
+1. Type：表项的类型。
+   我们以第一个为例 ` 0x00000001 (NEEDED) Shared library: [lib.so]`，可以得到，这一项表明了对共享库lib.so的依赖，这一点，我们可以通过ldd指令来查看一个可执行程序的共享库依赖，如下：
+
+   ```shell
+   dp@ubuntu:~/Desktop/elf/share$ ldd main
+   linux-gate.so.1 (0xf7f18000)
+   lib.so (0xf7f08000)
+   libc.so.6 => /lib32/libc.so.6 (0xf7d01000)
+   /lib/ld-linux.so.2 (0xf7f1a000)
+   ```
+
+   可以发现，这个可执行程序main依赖于我们自定义的lib.so，lib.so又依赖于stdio(libc.so)。这是由于我们的可执行程序引用了lib.c中的函数func，而函数func又引用了stdio中的printf函数。
+
+   我们再以 `0x00000006 (SYMTAB)  0x248`为例，当我们使用指令 `readelf -S main`输出节区信息，结果如下：
+
+   ```shell
+   dp@ubuntu:~/Desktop/elf/share$ readelf -S  main
+   There are 31 section headers, starting at offset 0x3800:
+
+   Section Headers:
+     [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+     [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+     [ 1] .interp           PROGBITS        000001b4 0001b4 000013 00   A  0   0  1
+     [ 2] .note.gnu.build-i NOTE            000001c8 0001c8 000024 00   A  0   0  4
+     [ 3] .note.gnu.propert NOTE            000001ec 0001ec 00001c 00   A  0   0  4
+     [ 4] .note.ABI-tag     NOTE            00000208 000208 000020 00   A  0   0  4
+     [ 5] .gnu.hash         GNU_HASH        00000228 000228 000020 04   A  6   0  4
+     [ 6] .dynsym           DYNSYM          00000248 000248 000080 10   A  7   1  4
+     [ 7] .dynstr           STRTAB          000002c8 0002c8 0000a2 00   A  0   0  1
+     [ 8] .gnu.version      VERSYM          0000036a 00036a 000010 02   A  6   0  2
+     [ 9] .gnu.version_r    VERNEED         0000037c 00037c 000030 00   A  7   1  4
+     [10] .rel.dyn          REL             000003ac 0003ac 000040 08   A  6   0  4
+     [11] .rel.plt          REL             000003ec 0003ec 000010 08  AI  6  24  4
+     [12] .init             PROGBITS        00001000 001000 000024 00  AX  0   0  4
+     [13] .plt              PROGBITS        00001030 001030 000030 04  AX  0   0 16
+     [14] .plt.got          PROGBITS        00001060 001060 000010 10  AX  0   0 16
+     [15] .plt.sec          PROGBITS        00001070 001070 000020 10  AX  0   0 16
+     [16] .text             PROGBITS        00001090 001090 0001e9 00  AX  0   0 16
+     [17] .fini             PROGBITS        0000127c 00127c 000018 00  AX  0   0  4
+     [18] .rodata           PROGBITS        00002000 002000 000008 00   A  0   0  4
+     [19] .eh_frame_hdr     PROGBITS        00002008 002008 000054 00   A  0   0  4
+     [20] .eh_frame         PROGBITS        0000205c 00205c 000128 00   A  0   0  4
+     [21] .init_array       INIT_ARRAY      00003ed0 002ed0 000004 04  WA  0   0  4
+     [22] .fini_array       FINI_ARRAY      00003ed4 002ed4 000004 04  WA  0   0  4
+     [23] .dynamic          DYNAMIC         00003ed8 002ed8 000100 08  WA  7   0  4
+     [24] .got              PROGBITS        00003fd8 002fd8 000028 04  WA  0   0  4
+     [25] .data             PROGBITS        00004000 003000 000008 00  WA  0   0  4
+     [26] .bss              NOBITS          00004008 003008 000004 00  WA  0   0  1
+     [27] .comment          PROGBITS        00000000 003008 00002b 01  MS  0   0  1
+     [28] .symtab           SYMTAB          00000000 003034 000460 10     29  46  4
+     [29] .strtab           STRTAB          00000000 003494 000252 00      0   0  1
+     [30] .shstrtab         STRTAB          00000000 0036e6 000118 00      0   0  1
+   Key to Flags:
+     W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+     L (link order), O (extra OS processing required), G (group), T (TLS),
+     C (compressed), x (unknown), o (OS specific), E (exclude),
+     p (processor specific)
+
+   ```
+
+   可以发现，节区.dynsym的地址0x248与节区头表中的信息一致，进一步验证了正确性。
+2. Name/Value：名称或值。与具体的类型相关，当类型为NEEDED时，他的名称就是依赖的动态链接库，当类型的对应的符号表时，值就是动态链接符号表的地址。
 
 ## 4.代码实现
 
