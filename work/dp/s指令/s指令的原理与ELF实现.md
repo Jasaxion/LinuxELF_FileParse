@@ -172,297 +172,365 @@ readelf -s
 ## 3.选项-s 显示的信息解释
 
 ```shell
-Symbol table '.dynsym' contains 7 entries:
+dp@ubuntu:~/Desktop/elf/7.9$ readelf -s A
+
+Symbol table '.dynsym' contains 9 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-     1: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __cxa_finalize
-     2: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
-     3: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+     1: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+     2: 00000000     0 FUNC    GLOBAL DEFAULT  UND printf@GLIBC_2.0 (2)
+     3: 00000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@GLIBC_2.1.3 (3)
      4: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
-     5: 0000114d    20 FUNC    GLOBAL DEFAULT   10 testfun
-     6: 00004010     4 OBJECT  GLOBAL DEFAULT   19 libGLobal
+     5: 00000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_main@GLIBC_2.0 (2)
+     6: 00000000     0 FUNC    GLOBAL DEFAULT  UND testfun
+     7: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
+     8: 00002004     4 OBJECT  GLOBAL DEFAULT   18 _IO_stdin_used
 
-Symbol table '.symtab' contains 51 entries:
+Symbol table '.symtab' contains 75 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-     1: 00000174     0 SECTION LOCAL  DEFAULT    1 
-     2: 00000198     0 SECTION LOCAL  DEFAULT    2 
-     3: 000001b4     0 SECTION LOCAL  DEFAULT    3 
-     4: 000001d8     0 SECTION LOCAL  DEFAULT    4 
-     5: 00000248     0 SECTION LOCAL  DEFAULT    5 
-     6: 000002b0     0 SECTION LOCAL  DEFAULT    6 
-     7: 00001000     0 SECTION LOCAL  DEFAULT    7 
-     8: 00001030     0 SECTION LOCAL  DEFAULT    8 
-     9: 00001040     0 SECTION LOCAL  DEFAULT    9 
-    10: 00001050     0 SECTION LOCAL  DEFAULT   10 
-    11: 0000117c     0 SECTION LOCAL  DEFAULT   11 
-    12: 00002000     0 SECTION LOCAL  DEFAULT   12 
-    13: 00002034     0 SECTION LOCAL  DEFAULT   13 
-    14: 00003f40     0 SECTION LOCAL  DEFAULT   14 
-    15: 00003f44     0 SECTION LOCAL  DEFAULT   15 
-    16: 00003f48     0 SECTION LOCAL  DEFAULT   16 
-    17: 00003ff0     0 SECTION LOCAL  DEFAULT   17 
-    18: 00004000     0 SECTION LOCAL  DEFAULT   18 
-    19: 0000400c     0 SECTION LOCAL  DEFAULT   19 
-    20: 00004014     0 SECTION LOCAL  DEFAULT   20 
-    21: 00000000     0 SECTION LOCAL  DEFAULT   21 
-    22: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
-    23: 00001060     0 FUNC    LOCAL  DEFAULT   10 deregister_tm_clones
-    24: 000010a0     0 FUNC    LOCAL  DEFAULT   10 register_tm_clones
-    25: 000010f0     0 FUNC    LOCAL  DEFAULT   10 __do_global_dtors_aux
-    26: 00004014     1 OBJECT  LOCAL  DEFAULT   20 completed.7623
-    27: 00003f44     0 OBJECT  LOCAL  DEFAULT   15 __do_global_dtors_aux_fin
-    28: 00001140     0 FUNC    LOCAL  DEFAULT   10 frame_dummy
-    29: 00003f40     0 OBJECT  LOCAL  DEFAULT   14 __frame_dummy_init_array_
-    30: 00000000     0 FILE    LOCAL  DEFAULT  ABS B.c
-    31: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
-    32: 000020d8     0 OBJECT  LOCAL  DEFAULT   13 __FRAME_END__
-    33: 00000000     0 FILE    LOCAL  DEFAULT  ABS 
-    34: 00003f48     0 OBJECT  LOCAL  DEFAULT   16 _DYNAMIC
-    35: 00004014     0 OBJECT  LOCAL  DEFAULT   19 __TMC_END__
-    36: 00001175     0 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.ax
-    37: 0000400c     0 OBJECT  LOCAL  DEFAULT   19 __dso_handle
-    38: 00001149     0 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.dx
-    39: 00001000     0 FUNC    LOCAL  DEFAULT    7 _init
-    40: 00001050     4 FUNC    LOCAL  DEFAULT   10 __x86.get_pc_thunk.bx
-    41: 00002000     0 NOTYPE  LOCAL  DEFAULT   12 __GNU_EH_FRAME_HDR
-    42: 0000117c     0 FUNC    LOCAL  DEFAULT   11 _fini
-    43: 00004000     0 OBJECT  LOCAL  DEFAULT   18 _GLOBAL_OFFSET_TABLE_
-    44: 00001161    20 FUNC    LOCAL  DEFAULT   10 testfun2
-    45: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __cxa_finalize
-    46: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
-    47: 00004010     4 OBJECT  GLOBAL DEFAULT   19 libGLobal
-    48: 0000114d    20 FUNC    GLOBAL DEFAULT   10 testfun
-    49: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
-    50: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
-
+     1: 000001b4     0 SECTION LOCAL  DEFAULT    1 
+     2: 000001c8     0 SECTION LOCAL  DEFAULT    2 
+     3: 000001ec     0 SECTION LOCAL  DEFAULT    3 
+     4: 00000208     0 SECTION LOCAL  DEFAULT    4 
+     5: 00000228     0 SECTION LOCAL  DEFAULT    5 
+     6: 00000248     0 SECTION LOCAL  DEFAULT    6 
+     7: 000002d8     0 SECTION LOCAL  DEFAULT    7 
+     8: 00000382     0 SECTION LOCAL  DEFAULT    8 
+     9: 00000394     0 SECTION LOCAL  DEFAULT    9 
+    10: 000003c4     0 SECTION LOCAL  DEFAULT   10 
+    11: 00000404     0 SECTION LOCAL  DEFAULT   11 
+    12: 00001000     0 SECTION LOCAL  DEFAULT   12 
+    13: 00001030     0 SECTION LOCAL  DEFAULT   13 
+    14: 00001070     0 SECTION LOCAL  DEFAULT   14 
+    15: 00001080     0 SECTION LOCAL  DEFAULT   15 
+    16: 000010b0     0 SECTION LOCAL  DEFAULT   16 
+    17: 000012dc     0 SECTION LOCAL  DEFAULT   17 
+    18: 00002000     0 SECTION LOCAL  DEFAULT   18 
+    19: 00002018     0 SECTION LOCAL  DEFAULT   19 
+    20: 00002074     0 SECTION LOCAL  DEFAULT   20 
+    21: 00003ecc     0 SECTION LOCAL  DEFAULT   21 
+    22: 00003ed0     0 SECTION LOCAL  DEFAULT   22 
+    23: 00003ed4     0 SECTION LOCAL  DEFAULT   23 
+    24: 00003fd4     0 SECTION LOCAL  DEFAULT   24 
+    25: 00004000     0 SECTION LOCAL  DEFAULT   25 
+    26: 00004014     0 SECTION LOCAL  DEFAULT   26 
+    27: 00000000     0 SECTION LOCAL  DEFAULT   27 
+    28: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    29: 00001100     0 FUNC    LOCAL  DEFAULT   16 deregister_tm_clones
+    30: 00001140     0 FUNC    LOCAL  DEFAULT   16 register_tm_clones
+    31: 00001190     0 FUNC    LOCAL  DEFAULT   16 __do_global_dtors_aux
+    32: 00004014     1 OBJECT  LOCAL  DEFAULT   26 completed.7623
+    33: 00003ed0     0 OBJECT  LOCAL  DEFAULT   22 __do_global_dtors_aux_fin
+    34: 000011e0     0 FUNC    LOCAL  DEFAULT   16 frame_dummy
+    35: 00003ecc     0 OBJECT  LOCAL  DEFAULT   21 __frame_dummy_init_array_
+    36: 00000000     0 FILE    LOCAL  DEFAULT  ABS A.c
+    37: 00004008     4 OBJECT  LOCAL  DEFAULT   25 mystaticVar
+    38: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    39: 000021cc     0 OBJECT  LOCAL  DEFAULT   20 __FRAME_END__
+    40: 00000000     0 FILE    LOCAL  DEFAULT  ABS 
+    41: 00003ed0     0 NOTYPE  LOCAL  DEFAULT   21 __init_array_end
+    42: 00003ed4     0 OBJECT  LOCAL  DEFAULT   23 _DYNAMIC
+    43: 00003ecc     0 NOTYPE  LOCAL  DEFAULT   21 __init_array_start
+    44: 00002018     0 NOTYPE  LOCAL  DEFAULT   19 __GNU_EH_FRAME_HDR
+    45: 00003fd4     0 OBJECT  LOCAL  DEFAULT   24 _GLOBAL_OFFSET_TABLE_
+    46: 00001000     0 FUNC    LOCAL  DEFAULT   12 _init
+    47: 000012d0     5 FUNC    GLOBAL DEFAULT   16 __libc_csu_fini
+    48: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+    49: 000010f0     4 FUNC    GLOBAL HIDDEN    16 __x86.get_pc_thunk.bx
+    50: 00004000     0 NOTYPE  WEAK   DEFAULT   25 data_start
+    51: 00000000     0 FUNC    GLOBAL DEFAULT  UND printf@@GLIBC_2.0
+    52: 000012d5     0 FUNC    GLOBAL HIDDEN    16 __x86.get_pc_thunk.bp
+    53: 00004014     0 NOTYPE  GLOBAL DEFAULT   25 _edata
+    54: 000012dc     0 FUNC    GLOBAL HIDDEN    17 _fini
+    55: 000011e9     0 FUNC    GLOBAL HIDDEN    16 __x86.get_pc_thunk.dx
+    56: 00000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@@GLIBC_2.1
+    57: 00004000     0 NOTYPE  GLOBAL DEFAULT   25 __data_start
+    58: 00004010     4 OBJECT  GLOBAL DEFAULT   25 myglobalvar2
+    59: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
+    60: 00004004     0 OBJECT  GLOBAL HIDDEN    25 __dso_handle
+    61: 00002004     4 OBJECT  GLOBAL DEFAULT   18 _IO_stdin_used
+    62: 00000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_main@@GLIBC_
+    63: 00001260   101 FUNC    GLOBAL DEFAULT   16 __libc_csu_init
+    64: 00004018     0 NOTYPE  GLOBAL DEFAULT   26 _end
+    65: 000010b0    58 FUNC    GLOBAL DEFAULT   16 _start
+    66: 00002000     4 OBJECT  GLOBAL DEFAULT   18 _fp_hw
+    67: 00004014     0 NOTYPE  GLOBAL DEFAULT   26 __bss_start
+    68: 000011ed    75 FUNC    GLOBAL DEFAULT   16 main
+    69: 0000125b     0 FUNC    GLOBAL HIDDEN    16 __x86.get_pc_thunk.ax
+    70: 00001238    35 FUNC    GLOBAL DEFAULT   16 hell
+    71: 00004014     0 OBJECT  GLOBAL HIDDEN    25 __TMC_END__
+    72: 00000000     0 FUNC    GLOBAL DEFAULT  UND testfun
+    73: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
+    74: 0000400c     4 OBJECT  GLOBAL DEFAULT   25 myglobalvar
 ```
 
 列名的含义如下：
 
-| 列名 | 含义                                 | 变量                 | 大小       |
-| ---- | ------------------------------------ | -------------------- | ---------- |
-| Name | 节区名                               | 特殊，从shstrtab读取 | max20B     |
-| Type | 节区类型                             | sh_type              | Elf32_Word |
-| Addr | 节区在被执行时的虚拟地址             | sh_addr              | Elf32_Addr |
-| Off  | 节区在文件中的偏移地址               | sh_offset            | Elf32_Off  |
-| Size | 节区的大小                           | sh_size              | Elf32_Word |
-| ES   | (如果节区含有表)节区每一个条目的大小 | sh_entsize           | Elf32_Word |
-| Flg  | 节区标志位                           | sh_flags             | Elf32_Word |
-| Lk   | 包含的条目的符号表节区的节头索引     | sh_link              | Elf32_Word |
-| Inf  | 包含的条目的符号表索引               | sh_info              | Elf32_Word |
-| Al   | 节区对齐                             | sh_addralign         | Elf32_Word |
+| 列名  | 含义                                 | 变量     | 大小          |
+| ----- | ------------------------------------ | -------- | ------------- |
+| Value | 符号值，具体与符号类型相关           | st_value | Elf32_Addr    |
+| Size  | 符号大小                             | st_size  | Elf32_Word    |
+| Type  | 符号类型，st_info低四位              | st_info  | unsigned char |
+| Bind  | 符号绑定类型                         | st_info  | unsigned char |
+| Vis   | 可见性，由DEFAULT和HIDDEN            |          |               |
+| Ndx   | 符号所在节区索引                     | st_shndx | Elf32_Section |
+| Name  | 符号名索引，即符号在符号名表中的索引 | st_name  | Elf32_Word    |
 
 接下来，我们来进行详细分析：
 
-1. 对于开头的一段话 `There are 23 section headers, starting at offset 0x748:`表明了节区头表有23个节区头项，且节区头表起始于0x748位置。使用原生工具readelf -h进行验证，可以得到ELF头数据如下：
+1. 这里有两个表输出了，一个是符号表，一个是动态符号表，查看他们的数据结构，这两个表的定义是一样的。
+
+   对于第一个动态符号表有一行输出：`Symbol table '.dynsym' contains 9 entries:`，这表明了动态符号表的有9个项目。
+
+   对于第二个符号表有一行输出：`Symbol table '.symtab' contains 75 entries:`，表明了符号表有75个项目。
+2. 我们以 `37: 00004008     4 OBJECT  LOCAL  DEFAULT   25 mystaticVar`这一行作为具体的例子进行分析，在我们的代码中，变量mystaticVar的定义为：`static int mystaticVar = 3 ;`
+
+   首先是他的Value为0x00004008，由于这是可执行文件，所以，这表示了mystaticVar所在的虚拟地址。我们查看这一区域的内容：
 
    ```shell
-   dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -h ./testg-template.o
-   ELF Header:
-   Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
-   Class:                             ELF32
-   Data:                              2's complement, little endian
-   Version:                           1 (current)
-   OS/ABI:                            UNIX - System V
-   ABI Version:                       0
-   Type:                              REL (Relocatable file)
-   Machine:                           Intel 80386
-   Version:                           0x1
-   Entry point address:               0x0
-   Start of program headers:          0 (bytes into file)
-   Start of section headers:          1864 (bytes into file)
-   Flags:                             0x0
-   Size of this header:               52 (bytes)
-   Size of program headers:           0 (bytes)
-   Number of program headers:         0
-   Size of section headers:           40 (bytes)
-   Number of section headers:         23
-   Section header string table index: 22
+   dp@ubuntu:~/Desktop/elf/7.9$ readelf -x 25 A
+
+   Hex dump of section '.data':
+     0x00004000 00000000 04400000 03000000 05000000 .....@..........
+     0x00004010 06000000                            ....
+
+
    ```
 
-   验证发现，节区头部表的位置在文件第1864字节处开始，转换为16进制，得到偏移地址为0x748，这与我们的工具是一致的。另外，ELF头表中表明了节区头表共有23项，这也与我们的输出是一致的。
-2. Name：表明节区名，例如.text、.group都是节区名。节区名是通过sh_name属性的索引查shstrtab表得到的字符串。通过节区的sh_name属性得到节区名字在shstrtab表中的索引，然后加上shstrtab表的偏移地址，得到最终名字字符串的起始地址，直接读取20字字符，因为里面存的每一个字符串都是以'\\0'结尾的，因此直接读取输出即可。
-3. Addr：全0且无意义，因为我们查看的是目标文件，还会对这些地址进行重定位的。
-4. Off：.symtab符号表节区在文件中的偏移地址为0x000274，表示从这个位置开始是本节区的数据。
-5. Size：.symtab符号表节区的大小为0x000200即512个字节。
-6. ES：由于.symtab符号表节区是一个数组，每一项表示一个符号。标识数组中每个条目的大小为0x10字节(16字节)，即该节区含有512B/16B=32个条目。使用原生readelf工具进行验证，如下图所示：
+   根据上吧可以发现，在地址0x00004008地址处的值为0x0300，转换为大端格式为0x00003，恰好为我们初始化的值3.
 
-```shell
-dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -s testg-template.o
+   其次我们定义的变量类型为int类型的，int的大小为4字节，在符号表中，也标识了符号大小为4字节。
 
-Symbol table '.symtab' contains 32 entries:
-   Num:    Value  Size Type    Bind   Vis      Ndx Name
-     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-     1: 00000000     0 FILE    LOCAL  DEFAULT  ABS testg-template.cpp
-     2: 00000000     0 SECTION LOCAL  DEFAULT    4 
-     3: 00000000     0 SECTION LOCAL  DEFAULT    6 
-     4: 00000000     0 SECTION LOCAL  DEFAULT    7 
-     5: 00000000     0 SECTION LOCAL  DEFAULT    8 
-     6: 00000000     1 OBJECT  LOCAL  DEFAULT    8 _ZStL19piecewise_construc
-     7: 00000000     1 OBJECT  LOCAL  DEFAULT    7 _ZStL8__ioinit
-     8: 00000000     0 SECTION LOCAL  DEFAULT    9 
-     9: 00000057    93 FUNC    LOCAL  DEFAULT    4 _Z41__static_initializati
-    10: 000000b4    40 FUNC    LOCAL  DEFAULT    4 _GLOBAL__sub_I_main
-    11: 00000000     0 SECTION LOCAL  DEFAULT   11 
-    12: 00000000     0 SECTION LOCAL  DEFAULT   13 
-    13: 00000000     0 SECTION LOCAL  DEFAULT   14 
-    14: 00000000     0 SECTION LOCAL  DEFAULT   16 
-    15: 00000000     0 SECTION LOCAL  DEFAULT   17 
-    16: 00000000     0 SECTION LOCAL  DEFAULT   18 
-    17: 00000000     0 SECTION LOCAL  DEFAULT   15 
-    18: 00000000     0 SECTION LOCAL  DEFAULT    1 
-    19: 00000000     0 SECTION LOCAL  DEFAULT    2 
-    20: 00000000     0 SECTION LOCAL  DEFAULT    3 
-    21: 00000000    87 FUNC    GLOBAL DEFAULT    4 main
-    22: 00000000     0 FUNC    GLOBAL HIDDEN    14 __x86.get_pc_thunk.bx
-    23: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _GLOBAL_OFFSET_TABLE_
-    24: 00000000    27 FUNC    WEAK   DEFAULT    9 _Z3addIiET_S0_S0_
-    25: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZSt4cout
-    26: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSolsEi
-    27: 00000000     0 FUNC    GLOBAL HIDDEN    13 __x86.get_pc_thunk.ax
-    28: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitC1Ev
-    29: 00000000     0 NOTYPE  GLOBAL HIDDEN   UND __dso_handle
-    30: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitD1Ev
-    31: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND __cxa_atexit
-```
+   符号mystaticVar并没有共享给其他的文件，只在当前文件使用，所以为LOCAL类型。相反的，存在一个函数testfun，如下：
 
-恰好有32个符号，这与我们的工具是一致的。
+   ```shell
+   6: 00000000     0 FUNC    GLOBAL DEFAULT  UND testfun
+   ```
 
-* Flg：标志位空。
-* Lk：由于我们的节区.symtab的类型为SHT_SYMTAB，所以sh_link表示的是关联字符串表的节区索引。在字符串表中的索引为21。使用原生readelf工具进行验证，如下图节区表所示：
+   该符号指向了一个函数testfun，这个函数是位于B.so中的，在A可执行程序中进行了引用，所以这个符号是GLOBAL类型的。
 
-  ```shell
-  dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -S testg-template.o
-  There are 23 section headers, starting at offset 0x748:
+   接下来是这个符号所在的节区索引，对于mystaticVar符号而言，其符号索引为25，我们打印查看节区头表。
 
-  Section Headers:
-    [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
-    [ 0]                   NULL            00000000 000000 000000 00      0   0  0
-    [ 1] .group            GROUP           00000000 000034 00000c 04     20  24  4
-    [ 2] .group            GROUP           00000000 000040 000008 04     20  27  4
-    [ 3] .group            GROUP           00000000 000048 000008 04     20  22  4
-    [ 4] .text             PROGBITS        00000000 000050 0000dc 00  AX  0   0  1
-    [ 5] .rel.text         REL             00000000 0005a8 000078 08   I 20   4  4
-    [ 6] .data             PROGBITS        00000000 00012c 000000 00  WA  0   0  1
-    [ 7] .bss              NOBITS          00000000 00012c 000001 00  WA  0   0  1
-    [ 8] .rodata           PROGBITS        00000000 00012c 000001 00   A  0   0  1
-    [ 9] .text._Z3addIiET_ PROGBITS        00000000 00012d 00001b 00 AXG  0   0  1
-    [10] .rel.text._Z3addI REL             00000000 000620 000010 08  IG 20   9  4
-    [11] .init_array       INIT_ARRAY      00000000 000148 000004 04  WA  0   0  4
-    [12] .rel.init_array   REL             00000000 000630 000008 08   I 20  11  4
-    [13] .text.__x86.get_p PROGBITS        00000000 00014c 000004 00 AXG  0   0  1
-    [14] .text.__x86.get_p PROGBITS        00000000 000150 000004 00 AXG  0   0  1
-    [15] .comment          PROGBITS        00000000 000154 00002c 01  MS  0   0  1
-    [16] .note.GNU-stack   PROGBITS        00000000 000180 000000 00      0   0  1
-    [17] .note.gnu.propert NOTE            00000000 000180 00001c 00   A  0   0  4
-    [18] .eh_frame         PROGBITS        00000000 00019c 0000d8 00   A  0   0  4
-    [19] .rel.eh_frame     REL             00000000 000638 000030 08   I 20  18  4
-    [20] .symtab           SYMTAB          00000000 000274 000200 10     21  21  4
-    [21] .strtab           STRTAB          00000000 000474 000134 00      0   0  1
-    [22] .shstrtab         STRTAB          00000000 000668 0000dd 00      0   0  1
-  Key to Flags:
-    W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
-    L (link order), O (extra OS processing required), G (group), T (TLS),
-    C (compressed), x (unknown), o (OS specific), E (exclude),
-    p (processor specific)
+   ```shell
+   dp@ubuntu:~/Desktop/elf/7.9$ readelf -S A
+   There are 31 section headers, starting at offset 0x3898:
 
-  ```
+   Section Headers:
+     [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+     [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+     [ 1] .interp           PROGBITS        000001b4 0001b4 000013 00   A  0   0  1
+     [ 2] .note.gnu.build-i NOTE            000001c8 0001c8 000024 00   A  0   0  4
+     [ 3] .note.gnu.propert NOTE            000001ec 0001ec 00001c 00   A  0   0  4
+     [ 4] .note.ABI-tag     NOTE            00000208 000208 000020 00   A  0   0  4
+     [ 5] .gnu.hash         GNU_HASH        00000228 000228 000020 04   A  6   0  4
+     [ 6] .dynsym           DYNSYM          00000248 000248 000090 10   A  7   1  4
+     [ 7] .dynstr           STRTAB          000002d8 0002d8 0000aa 00   A  0   0  1
+     [ 8] .gnu.version      VERSYM          00000382 000382 000012 02   A  6   0  2
+     [ 9] .gnu.version_r    VERNEED         00000394 000394 000030 00   A  7   1  4
+     [10] .rel.dyn          REL             000003c4 0003c4 000040 08   A  6   0  4
+     [11] .rel.plt          REL             00000404 000404 000018 08  AI  6  24  4
+     [12] .init             PROGBITS        00001000 001000 000024 00  AX  0   0  4
+     [13] .plt              PROGBITS        00001030 001030 000040 04  AX  0   0 16
+     [14] .plt.got          PROGBITS        00001070 001070 000010 10  AX  0   0 16
+     [15] .plt.sec          PROGBITS        00001080 001080 000030 10  AX  0   0 16
+     [16] .text             PROGBITS        000010b0 0010b0 000229 00  AX  0   0 16
+     [17] .fini             PROGBITS        000012dc 0012dc 000018 00  AX  0   0  4
+     [18] .rodata           PROGBITS        00002000 002000 000018 00   A  0   0  4
+     [19] .eh_frame_hdr     PROGBITS        00002018 002018 00005c 00   A  0   0  4
+     [20] .eh_frame         PROGBITS        00002074 002074 00015c 00   A  0   0  4
+     [21] .init_array       INIT_ARRAY      00003ecc 002ecc 000004 04  WA  0   0  4
+     [22] .fini_array       FINI_ARRAY      00003ed0 002ed0 000004 04  WA  0   0  4
+     [23] .dynamic          DYNAMIC         00003ed4 002ed4 000100 08  WA  7   0  4
+     [24] .got              PROGBITS        00003fd4 002fd4 00002c 04  WA  0   0  4
+     [25] .data             PROGBITS        00004000 003000 000014 00  WA  0   0  4
+     [26] .bss              NOBITS          00004014 003014 000004 00  WA  0   0  1
+     [27] .comment          PROGBITS        00000000 003014 00002b 01  MS  0   0  1
+     [28] .symtab           SYMTAB          00000000 003040 0004b0 10     29  47  4
+     [29] .strtab           STRTAB          00000000 0034f0 00028e 00      0   0  1
+     [30] .shstrtab         STRTAB          00000000 00377e 000118 00      0   0  1
+   Key to Flags:
+     W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+     L (link order), O (extra OS processing required), G (group), T (TLS),
+     C (compressed), x (unknown), o (OS specific), E (exclude),
+     p (processor specific)
+   ```
 
-  索引为21的节区正好是字符串表strtab所在的节区，用于给symtab提供符号名。
-* Inf：由于我们的节区.symtab的类型为SHT_SYMTAB，所以sh_info表示的是比最后一个局部符号的索引大1。标识元素的符号表索引为21。使用原生readelf工具打印其符号表，如下图所示：
+   可以发现，节区头表中，第25号节区是.data段，说明了变量符号mystaticVar所在的节区为.data节区。当我们输出.data节区的内容时：
 
-  ```shell
-  dp@ubuntu:~/Desktop/elf/7.9/testg$ readelf -s testg-template.o
+   ```shell
+   dp@ubuntu:~/Desktop/elf/7.9$ readelf -x 25 A
 
-  Symbol table '.symtab' contains 32 entries:
-     Num:    Value  Size Type    Bind   Vis      Ndx Name
-       0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-       1: 00000000     0 FILE    LOCAL  DEFAULT  ABS testg-template.cpp
-       2: 00000000     0 SECTION LOCAL  DEFAULT    4 
-       3: 00000000     0 SECTION LOCAL  DEFAULT    6 
-       4: 00000000     0 SECTION LOCAL  DEFAULT    7 
-       5: 00000000     0 SECTION LOCAL  DEFAULT    8 
-       6: 00000000     1 OBJECT  LOCAL  DEFAULT    8 _ZStL19piecewise_construc
-       7: 00000000     1 OBJECT  LOCAL  DEFAULT    7 _ZStL8__ioinit
-       8: 00000000     0 SECTION LOCAL  DEFAULT    9 
-       9: 00000057    93 FUNC    LOCAL  DEFAULT    4 _Z41__static_initializati
-      10: 000000b4    40 FUNC    LOCAL  DEFAULT    4 _GLOBAL__sub_I_main
-      11: 00000000     0 SECTION LOCAL  DEFAULT   11 
-      12: 00000000     0 SECTION LOCAL  DEFAULT   13 
-      13: 00000000     0 SECTION LOCAL  DEFAULT   14 
-      14: 00000000     0 SECTION LOCAL  DEFAULT   16 
-      15: 00000000     0 SECTION LOCAL  DEFAULT   17 
-      16: 00000000     0 SECTION LOCAL  DEFAULT   18 
-      17: 00000000     0 SECTION LOCAL  DEFAULT   15 
-      18: 00000000     0 SECTION LOCAL  DEFAULT    1 
-      19: 00000000     0 SECTION LOCAL  DEFAULT    2 
-      20: 00000000     0 SECTION LOCAL  DEFAULT    3 
-      21: 00000000    87 FUNC    GLOBAL DEFAULT    4 main
-      22: 00000000     0 FUNC    GLOBAL HIDDEN    14 __x86.get_pc_thunk.bx
-      23: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _GLOBAL_OFFSET_TABLE_
-      24: 00000000    27 FUNC    WEAK   DEFAULT    9 _Z3addIiET_S0_S0_
-      25: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZSt4cout
-      26: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSolsEi
-      27: 00000000     0 FUNC    GLOBAL HIDDEN    13 __x86.get_pc_thunk.ax
-      28: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitC1Ev
-      29: 00000000     0 NOTYPE  GLOBAL HIDDEN   UND __dso_handle
-      30: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _ZNSt8ios_base4InitD1Ev
-      31: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND __cxa_atexit
-  ```
+   Hex dump of section '.data':
+    0x00004000 00000000 04400000 03000000 05000000 .....@..........
+    0x00004010 06000000                            ....
 
-  得到符号表对应的符号为main，正好为最后一个局部符号（LOCAL）加1的符号。
-* Al：节区对齐4B，因为本节区是一个表，所以项的大小是固定的，需要进行对齐。
+
+   ```
+
+   其中0x000040008正好的符号所在的位置，值也正确。
+
+   以后是符号名，我们首先查看符号表的十六进制数据：
+
+   ```shell
+   dp@ubuntu:~/Desktop/elf/7.9$ readelf -x 28 A
+
+   Hex dump of section '.symtab':
+     0x00000000 00000000 00000000 00000000 00000000 ................
+     0x00000010 00000000 b4010000 00000000 03000100 ................
+     0x00000020 00000000 c8010000 00000000 03000200 ................
+     0x00000030 00000000 ec010000 00000000 03000300 ................
+     0x00000040 00000000 08020000 00000000 03000400 ................
+     0x00000050 00000000 28020000 00000000 03000500 ....(...........
+     0x00000060 00000000 48020000 00000000 03000600 ....H...........
+     0x00000070 00000000 d8020000 00000000 03000700 ................
+     0x00000080 00000000 82030000 00000000 03000800 ................
+     0x00000090 00000000 94030000 00000000 03000900 ................
+     0x000000a0 00000000 c4030000 00000000 03000a00 ................
+     0x000000b0 00000000 04040000 00000000 03000b00 ................
+     0x000000c0 00000000 00100000 00000000 03000c00 ................
+     0x000000d0 00000000 30100000 00000000 03000d00 ....0...........
+     0x000000e0 00000000 70100000 00000000 03000e00 ....p...........
+     0x000000f0 00000000 80100000 00000000 03000f00 ................
+     0x00000100 00000000 b0100000 00000000 03001000 ................
+     0x00000110 00000000 dc120000 00000000 03001100 ................
+     0x00000120 00000000 00200000 00000000 03001200 ..... ..........
+     0x00000130 00000000 18200000 00000000 03001300 ..... ..........
+     0x00000140 00000000 74200000 00000000 03001400 ....t ..........
+     0x00000150 00000000 cc3e0000 00000000 03001500 .....>..........
+     0x00000160 00000000 d03e0000 00000000 03001600 .....>..........
+     0x00000170 00000000 d43e0000 00000000 03001700 .....>..........
+     0x00000180 00000000 d43f0000 00000000 03001800 .....?..........
+     0x00000190 00000000 00400000 00000000 03001900 .....@..........
+     0x000001a0 00000000 14400000 00000000 03001a00 .....@..........
+     0x000001b0 00000000 00000000 00000000 03001b00 ................
+     0x000001c0 01000000 00000000 00000000 0400f1ff ................
+     0x000001d0 0c000000 00110000 00000000 02001000 ................
+     0x000001e0 0e000000 40110000 00000000 02001000 ....@...........
+     0x000001f0 21000000 90110000 00000000 02001000 !...............
+     0x00000200 37000000 14400000 01000000 01001a00 7....@..........
+     0x00000210 46000000 d03e0000 00000000 01001600 F....>..........
+     0x00000220 6d000000 e0110000 00000000 02001000 m...............
+     0x00000230 79000000 cc3e0000 00000000 01001500 y....>..........
+     0x00000240 98000000 00000000 00000000 0400f1ff ................
+     0x00000250 9c000000 08400000 04000000 01001900 .....@..........
+     0x00000260 01000000 00000000 00000000 0400f1ff ................
+     0x00000270 a8000000 cc210000 00000000 01001400 .....!..........
+     0x00000280 00000000 00000000 00000000 0400f1ff ................
+     0x00000290 b6000000 d03e0000 00000000 00001500 .....>..........
+     0x000002a0 c7000000 d43e0000 00000000 01001700 .....>..........
+     0x000002b0 d0000000 cc3e0000 00000000 00001500 .....>..........
+     0x000002c0 e3000000 18200000 00000000 00001300 ..... ..........
+     0x000002d0 f6000000 d43f0000 00000000 01001800 .....?..........
+     0x000002e0 1b020000 00100000 00000000 02000c00 ................
+     0x000002f0 0c010000 d0120000 05000000 12001000 ................
+     0x00000300 1c010000 00000000 00000000 20000000 ............ ...
+     0x00000310 38010000 f0100000 04000000 12021000 8...............
+     0x00000320 b1010000 00400000 00000000 20001900 .....@...... ...
+     0x00000330 4e010000 00000000 00000000 12000000 N...............
+     0x00000340 60010000 d5120000 00000000 12021000 `...............
+     0x00000350 76010000 14400000 00000000 10001900 v....@..........
+     0x00000360 16010000 dc120000 00000000 12021100 ................
+     0x00000370 7d010000 e9110000 00000000 12021000 }...............
+     0x00000380 93010000 00000000 00000000 22000000 ............"...
+     0x00000390 af010000 00400000 00000000 10001900 .....@..........
+     0x000003a0 bc010000 10400000 04000000 11001900 .....@..........
+     0x000003b0 c9010000 00000000 00000000 20000000 ............ ...
+     0x000003c0 d8010000 04400000 00000000 11021900 .....@..........
+     0x000003d0 e5010000 04200000 04000000 11001200 ..... ..........
+     0x000003e0 f4010000 00000000 00000000 12000000 ................
+     0x000003f0 11020000 60120000 65000000 12001000 ....`...e.......
+     0x00000400 c2000000 18400000 00000000 10001a00 .....@..........
+     0x00000410 b5010000 b0100000 3a000000 12001000 ........:.......
+     0x00000420 21020000 00200000 04000000 11001200 !.... ..........
+     0x00000430 28020000 14400000 00000000 10001a00 (....@..........
+     0x00000440 34020000 ed110000 4b000000 12001000 4.......K.......
+     0x00000450 39020000 5b120000 00000000 12021000 9...[...........
+     0x00000460 4f020000 38120000 23000000 12001000 O...8...#.......
+     0x00000470 54020000 14400000 00000000 11021900 T....@..........
+     0x00000480 60020000 00000000 00000000 12000000 `...............
+     0x00000490 68020000 00000000 00000000 20000000 h........... ...
+     0x000004a0 82020000 0c400000 04000000 11001900 .....@..........
+
+
+   ```
+
+   我们分析的符号mystaticVar是第37个，即0x25，由于符号表项是16字节一个，所以我们找到位置0x250，即 `0x00000250 9c000000 08400000 04000000 01001900 .....@..........`，在这里面，根据结构体的定义，第一个Elf32_Word字为符号索引，其值为9c000000，转换为大端格式为0x0000009c。接下来我们再去查.strtab表，这里面记录了符号表中符号名的字符串。打印输出符号名表如下：
+
+   ```shell
+   dp@ubuntu:~/Desktop/elf/7.9$ readelf -x .strtab A
+
+   Hex dump of section '.strtab':
+     0x00000000 00637274 73747566 662e6300 64657265 .crtstuff.c.dere
+     0x00000010 67697374 65725f74 6d5f636c 6f6e6573 gister_tm_clones
+     0x00000020 005f5f64 6f5f676c 6f62616c 5f64746f .__do_global_dto
+     0x00000030 72735f61 75780063 6f6d706c 65746564 rs_aux.completed
+     0x00000040 2e373632 33005f5f 646f5f67 6c6f6261 .7623.__do_globa
+     0x00000050 6c5f6474 6f72735f 6175785f 66696e69 l_dtors_aux_fini
+     0x00000060 5f617272 61795f65 6e747279 00667261 _array_entry.fra
+     0x00000070 6d655f64 756d6d79 005f5f66 72616d65 me_dummy.__frame
+     0x00000080 5f64756d 6d795f69 6e69745f 61727261 _dummy_init_arra
+     0x00000090 795f656e 74727900 412e6300 6d797374 y_entry.A.c.myst
+     0x000000a0 61746963 56617200 5f5f4652 414d455f aticVar.__FRAME_
+     0x000000b0 454e445f 5f005f5f 696e6974 5f617272 END__.__init_arr
+     0x000000c0 61795f65 6e64005f 44594e41 4d494300 ay_end._DYNAMIC.
+     0x000000d0 5f5f696e 69745f61 72726179 5f737461 __init_array_sta
+     0x000000e0 7274005f 5f474e55 5f45485f 4652414d rt.__GNU_EH_FRAM
+     0x000000f0 455f4844 52005f47 4c4f4241 4c5f4f46 E_HDR._GLOBAL_OF
+     0x00000100 46534554 5f544142 4c455f00 5f5f6c69 FSET_TABLE_.__li
+     0x00000110 62635f63 73755f66 696e6900 5f49544d bc_csu_fini._ITM
+     0x00000120 5f646572 65676973 74657254 4d436c6f _deregisterTMClo
+     0x00000130 6e655461 626c6500 5f5f7838 362e6765 neTable.__x86.ge
+     0x00000140 745f7063 5f746875 6e6b2e62 78007072 t_pc_thunk.bx.pr
+     0x00000150 696e7466 4040474c 4942435f 322e3000 intf@@GLIBC_2.0.
+     0x00000160 5f5f7838 362e6765 745f7063 5f746875 __x86.get_pc_thu
+     0x00000170 6e6b2e62 70005f65 64617461 005f5f78 nk.bp._edata.__x
+     0x00000180 38362e67 65745f70 635f7468 756e6b2e 86.get_pc_thunk.
+     0x00000190 6478005f 5f637861 5f66696e 616c697a dx.__cxa_finaliz
+     0x000001a0 65404047 4c494243 5f322e31 2e33005f e@@GLIBC_2.1.3._
+     0x000001b0 5f646174 615f7374 61727400 6d79676c _data_start.mygl
+     0x000001c0 6f62616c 76617232 005f5f67 6d6f6e5f obalvar2.__gmon_
+     0x000001d0 73746172 745f5f00 5f5f6473 6f5f6861 start__.__dso_ha
+     0x000001e0 6e646c65 005f494f 5f737464 696e5f75 ndle._IO_stdin_u
+     0x000001f0 73656400 5f5f6c69 62635f73 74617274 sed.__libc_start
+     0x00000200 5f6d6169 6e404047 4c494243 5f322e30 _main@@GLIBC_2.0
+     0x00000210 005f5f6c 6962635f 6373755f 696e6974 .__libc_csu_init
+     0x00000220 005f6670 5f687700 5f5f6273 735f7374 ._fp_hw.__bss_st
+     0x00000230 61727400 6d61696e 005f5f78 38362e67 art.main.__x86.g
+     0x00000240 65745f70 635f7468 756e6b2e 61780068 et_pc_thunk.ax.h
+     0x00000250 656c6c00 5f5f544d 435f454e 445f5f00 ell.__TMC_END__.
+     0x00000260 74657374 66756e00 5f49544d 5f726567 testfun._ITM_reg
+     0x00000270 69737465 72544d43 6c6f6e65 5461626c isterTMCloneTabl
+     0x00000280 65006d79 676c6f62 616c7661 7200     e.myglobalvar.
+
+   ```
+
+   查看位置0x0000009c的符号名表，可以发现，字符串正好是mystaticVar，最后是一个'\0'结束符。
 
 ## 4.代码实现
 
 ### 4.1.算法思路
 
-以Elf32位为例，我们要读取的是节区头表的每一个项，它的每一项的定义如下：
+以Elf32位为例，我们要读取的是符号表或动态符号表的每一个项，它的每一项的定义如下：
 
-```shell
+```c
 typedef struct
 {
-  Elf32_Word	sh_name;		/* 节名称（字符串表索引） */
-  Elf32_Word	sh_type;		/* 节类型 */
-  Elf32_Word	sh_flags;		/* 节标志 */
-  Elf32_Addr	sh_addr;		/* 执行时的节虚拟地址 */
-  Elf32_Off	sh_offset;		/* 节在文件中的偏移量 */
-  Elf32_Word	sh_size;		/* 节的字节大小 */
-  Elf32_Word	sh_link;		/* 链接到另一个节 */
-  Elf32_Word	sh_info;		/* 附加的节信息 */
-  Elf32_Word	sh_addralign;		/* 节对齐方式 */
-  Elf32_Word	sh_entsize;		/* 如果节保存表格，则是条目的大小 */
-} Elf32_Shdr;
-
+  Elf32_Word	st_name;		/* Symbol name (string tbl index) */
+  Elf32_Addr	st_value;		/* Symbol value */
+  Elf32_Word	st_size;		/* Symbol size */
+  unsigned char	st_info;		/* Symbol type and binding */
+  unsigned char	st_other;		/* Symbol visibility */
+  Elf32_Section	st_shndx;		/* Section index */
+} Elf32_Sym;
 ```
 
-节区头表是一个数组，数组的类型是Elf32_Shdr，因此直接根据节区头表的开始位置可以直接进行遍历访问。我们遍历每一个节区头表项，并输出打印它的结构体中的信息。特别的是sh_name索引需要通过访问shstrtab来获取真正的字符串名称。其实现步骤如下：
-
-1. 首先检查 ELF 头中的节头表项目数（e_shnum），如果为0，表示异常情况，可能是损坏的 ELF 文件头或者文件中没有节区。进行相应的处理并返回。
-2. 如果需要解析内容选项包括-t、-S或-e，则打印节头表的项目数量和偏移位置。
-3. 如果是32位的 ELF 文件，读取32位的节区头表。
-4. 读取字符串表（shstrtab），以便后续显示节区名称。
-5. 如果需要解析内容选项包括-t、-S或-e，则打印节头信息。
-6. 遍历节区头表的所有项，对于每个节区，进行如下处理：
-
-   * 计算节区名称在字符串表中的偏移地址。
-   * 读取节区名称。
-   * 打印节区名称。
-   * 打印节区类型。
-   * 打印节区的虚拟地址、文件中偏移地址、大小和条目大小。
-   * 如果节区有标志位，打印标志位；否则用空格填充。
-   * 打印 sh_link 和 sh_info。
-   * 如果节区名称是特定的动态链接信息表、动态链接重定位表、动态链接符号表或动态链接字符表，记录相应的偏移地址和大小。
-   * 如果需要解析内容选项包括-t，打印标志位。
-7. 如果需要解析内容选项包括-x或-u，则遍历节区头表的所有项，记录指定节区的索引。
-8. 返回成功。
+符号表表是一个数组，数组的类型是Elf32_Sym，因此直接根据符号表的开始位置可以直接进行遍历访问。我们遍历每一个符号表项，并输出打印它的结构体中的信息。特别的是st_name索引需要通过访问strtab（对于.dynsym来说符号名表是.dynstr）来获取真正的字符串名称。其实现步骤如下：
 
 ### 4.2.流程图
 
 按照上述的思想，设计的程序的流程图如下图所示：
 
-![1687487560681](image/t指令的原理与ELF实现/1687487560681.png)
 
 ### 4.3.测试
 
@@ -512,330 +580,86 @@ dp@ubuntu:~/Desktop/elf/7.9$ gcc -m32 A.c -o A B.so
 
 ### 4.4.代码详细解释
 
-#### 4.4.1.处理打印节区头表
+#### 4.4.1.处理打印符号表
 
-处理打印节区头表在函数中定义为process_section_headers，它的功能是实现遍历节区头表并输出每项的结构体信息，另一方面，负责了依据sh_name索引查shstrtab表的任务和做一些参数如unwind的初始化等，如下面的代码注释：
+处理打印符号表表在函数中定义为process_symbol_table，它的功能是
 
 ```c
-//解析和处理文件的节头表
-int ELF_process::process_section_headers(FILE *file,int option,char *target_section_name)
+//处理打印符号表
+void ELF_process::process_symbol_table(FILE *pFILE,int option)
 {
-    //file：文件指针
-    //option：解析的内容选项
-    //target_section_name：目标节区索引，这个只有当-x指令时生效
-
-    Elf32_Shdr * section;
-    section = NULL;
-    char * string_table;
-
-    unsigned int  flag_shoff;
-
-    //依据ELF头判断节区头表的项目数，如果项目数为0那么存在异常
-    if (elf_header.e_shnum == 0)
-    {   
-        //依据elf头中的节区表头偏移地址是不是0，如果是0，那么就说明不存在节区表头，有异常
-        if (elf_header.e_shoff!=0)
-            printf("possibly corrupt ELF file header - it has a non-zero section header offset, but no section headers\n");
-        //节区表头存在但是没有表项，就说明文件中没有节区
-        else
-            printf ("\nThere are no sections in this file.\n");
-        return 1;
-    }
-
-    //如果指令为-t -S -e，那么就先打印出节头表的项目数量和节头表的偏移位置，
-    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
-    if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
-        printf ("  There are %d section headers, starting at offset 0x%lx:\n",elf_header.e_shnum, (unsigned long) elf_header.e_shoff);
-
-    //如果是32位的文件
-    if (is_32bit_elf)
+    Elf32_Sym* sym; 
+    /*定义32位符号表*/
+    get_32bit_symbol(pFILE,option);
+    unsigned int i;
+    if(option & (1<<5))  //-s
     {
-        //读取32位的节区头表，依据elf头中的信息
-        if (! get_32bit_section_headers (file, elf_header.e_shnum))
-            return 0;
-    }
-
-    /* Read in the string table, so that we have names to display.  */
-    //找到shstrtab的位置
-    //先判断shstrtab的节区索引是不是未定义，然后判断是不是小于总节区数
-    if (elf_header.e_shstrndx != SHN_UNDEF  && elf_header.e_shstrndx < elf_header.e_shnum)
-    {
-        //获取shstrtab节区，位置是节区头的偏移地址加上对应的索引，即节区头表中的第e_shstrndx个元素
-        section = section_headers + elf_header.e_shstrndx;
-
-        //保存shstrtab的偏移地址
-        flag_shoff = section->sh_offset;
-
-    }
-
-    //如果指令为-t -S -e，那么接下来打印节头信息
-    //这些指令分别是：显示节的详细信息、 显示节头信息、显示全部头信息
-    if((option & (1<<4))||(option & (1<<2) ) || (option & (1<<6)))
-    {
-        //如果节头表项个数大于1，那么单词用复数
-	    if (elf_header.e_shnum > 1)
-            printf ("\nSection Headers:\n");
-        else
-            printf ("\nSection Header:\n");
-    }
-    section = section_headers;
-    unsigned int countC;
-    //只做32位文件的分析
-    if (is_32bit_elf)
-    {
-        //如果是-t指令，显示节区的详细信息
-        if(option & (1<<4)) //-t
+        //打印列名
+	    printf("Num  Value   NdX  other    info         Size          Name\n");
+        //遍历符号表中的每一个符号项
+        for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
         {
-            //打印列名
-            printf("  [Nr] Name\n      Type            Addr     Off    Size   ES Flg Lk Inf Al\n      Flags\n");
-            //遍历节区头表的所有项，每一个项都对应一个节区
-            for (int i = 0; i < elf_header.e_shnum; i++, section++)
-            {
-                printf ("  [%2u] ", i);
-
-                //计算该节区名在shstrtab中的偏移地址
-                countC = flag_shoff + section->sh_name;
-
-                //将文件指针移动到这个地方
-                fseek(file,countC,SEEK_SET);
-                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
-                char string_name[20];
-                //从文件中读取名字字符串
-                fread(string_name,20,1,file);
-
-        //判断节区名是不是"IA_64",记录unwind节区的索引
-		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
-        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
-		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
-
-                //打印输出节区名
-                printf("%-16s \n",string_name);
-
-                //打印输出节区类型
-                printf("%-16s ",get_section_type_name (section->sh_type));
-
-                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
-                printf("%6.8lx",(unsigned long) section->sh_addr);
-                printf ( " %6.6lx %6.6lx %2.2lx",
-                         (unsigned long) section->sh_offset,
-                         (unsigned long) section->sh_size,
-                         (unsigned long) section->sh_entsize);
-
-                //如果节区有标志位那么就打印输出标志
-                if (section->sh_flags)
-                    printf (" %2.2x ", section->sh_flags);
-                //否则用空格填充
-                else
-                    printf("%4c",32);
-
-                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
-                printf ("%2u ", section->sh_link);
-                printf ("%3u %3lu", section->sh_info,
-                        (unsigned long) section->sh_addralign);
-
-                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
-                if (strcmp(string_name,".dynamic")==0)
-                {
-                    dynamic_addr   = section->sh_offset;
-                    dynamic_size   = section->sh_size;
-                }
-
-                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
-                if (strcmp(string_name,".rel.dyn")==0)
-                {
-                    rel_dyn_offset = section->sh_offset;
-                    rel_dyn_size   = section->sh_size;
-                }
-
-                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
-                if(strcmp(string_name,".dynsym")==0)
-                {
-                    sym_dyn_offset = section->sh_offset;
-                    sym_dyn_size   = section->sh_size;
-                }
-
-                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
-                if(strcmp(string_name,".dynstr")==0)
-                {
-                    str_dyn_offset = section->sh_offset;
-                    str_dyn_size   = section->sh_size;
-                }
-
-                printf("\n");
-                //打印输出标志位
-                printf("      [%x]\n",section->sh_flags);
-            }
-        }
-        //如果是-S或-e指令，显示节头信息和全部头信息
-        else if((option & (1<<2) ) || (option & (1<<6)))        //-S || -e
-        {
-  
-            //打印列名
-            printf("  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
-            //遍历节区头表的所有项，每一个项都对应一个节区
-            for (int i = 0; i < elf_header.e_shnum; i++, section++)
-            {
-                printf ("  [%2u] ", i);
-
-                //计算该节区名在shstrtab中的偏移地址
-                countC = flag_shoff + section->sh_name;
-
-                //将文件指针移动到这个地方
-                fseek(file,countC,SEEK_SET);
-                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
-                char string_name[20];
-                //从文件中读取名字字符串
-                fread(string_name,20,1,file);
-
-        //判断节区名是不是"IA_64",记录unwind节区的索引
-		if(!strcmp(string_name,"IA_64")) unwind_idx=i;
-        //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
-		if(!strcmp(string_name,target_section_name)) target_section_idx=i;
-
-                //打印输出节区名
-                printf("%-16s ",string_name);
-
-
-                //打印输出节区类型
-                printf ( " %-15.15s ",
-                         get_section_type_name (section->sh_type));
-
-                //打印输出节区虚拟地址、文件中偏移地址、节区大小、节区条目大小
-                printf("%6.8lx",(unsigned long) section->sh_addr);
-                printf ( " %6.6lx %6.6lx %2.2lx",
-                         (unsigned long) section->sh_offset,
-                         (unsigned long) section->sh_size,
-                         (unsigned long) section->sh_entsize);
-
-                //如果节区有标志位那么就打印输出标志
-                if (section->sh_flags)
-                    printf (" %2.2x ", section->sh_flags);
-                //否则用空格填充
-                else
-                    printf("%4c",32);
-
-                //打印输出sh_link和sh_info，这个因不同节区类型而异，最后输出对齐信息
-                printf ("%2u ", section->sh_link);
-                printf ("%3u %3lu", section->sh_info,
-                        (unsigned long) section->sh_addralign);
-
-                //如果节区名是.dynamic动态链接信息表，那么需要记录节区的偏移地址和大小
-                if (strcmp(string_name,".dynamic")==0)
-                {
-                    dynamic_addr   = section->sh_offset;
-                    dynamic_size   = section->sh_size;
-                }
-
-                //如果节区名是.rel.dyn动态链接重定位表，那么需要记录节区的偏移地址和大小
-                if (strcmp(string_name,".rel.dyn")==0)
-                {
-                    rel_dyn_offset = section->sh_offset;
-                    rel_dyn_size   = section->sh_size;
-                }
-
-                //如果节区名是.dynsym动态链接符号表，那么需要记录节区的偏移地址和大小
-                if(strcmp(string_name,".dynsym")==0)
-                {
-                    sym_dyn_offset = section->sh_offset;
-                    sym_dyn_size   = section->sh_size;
-                }
-
-                //如果节区名是.dynstr动态链接字符表，那么需要记录节区的偏移地址和大小
-                if(strcmp(string_name,".dynstr")==0)
-                {
-                    str_dyn_offset = section->sh_offset;
-                    str_dyn_size   = section->sh_size;
-                }
-
-                printf("\n");
-
-            }
-        }
-        //如果是指令-x或-u，显示指定节区详细信息或.unwind节区详细信息
-        else if(option & (1<<14) || option & (1<<9))
-        {
-            //遍历节区头表的所有项，每一个项都对应一个节区
-            for (int i = 0; i < elf_header.e_shnum; i++, section++)
-            {
-                //计算该节区名在shstrtab中的偏移地址
-                countC = flag_shoff + section->sh_name;
-                //将文件指针移动到这个地方
-                fseek(file,countC,SEEK_SET);
-                //名字字符串，长度为20，名字以'\0'结尾，所以多读一些没有关系
-                char string_name[20];
-                //从文件中读取名字字符串
-                fread(string_name,20,1,file);
-
-                //判断节区名是不是"IA_64",记录unwind节区的索引，这个是给-u用的
-                if(!strcmp(string_name,"IA_64")) unwind_idx=i;
-                //判断节区名和目标的节区名是否一致，相同的话记录目标节区名对应的索引，这个是给-x用的
-                if(!strcmp(string_name,target_section_name)) target_section_idx=i;
-            }
+            //打印符号在符号表中的索引
+            printf("%2d: ",i);
+            //打印符号的值，这个值因不同的符号类型而异
+            printf("%2.8x ",sym->st_value);
+            //打印符号所在的节区的索引
+            printf("%-2.2x",sym->st_shndx);
+            //打印符号的其他信息
+            printf("%-12.2x ",sym->st_other);
+            //打印符号的类型和绑定方式，低4为为类型，高28位为绑定方式
+            printf("%-12.2x ",sym->st_info);
+            //打印符号的大小
+            printf("%-12.2x ",sym->st_size);
+            //调用函数使用st_name符号名索引在strtab表中找到对应的符号名
+            get_32bit_strdyn(pFILE,sym->st_name);
         }
     }
-
-    //成功返回
-    return 1;
+    //这个是打印统计信息的
+    if(option & (1<<13)) //-I
+    {
+        //输出列名和提示
+        printf("\nbucket list:\n");
+        printf("Num     Size          of total \n");
+        int sum=0;
+        //遍历符号表中的每一个符号
+        for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
+        {
+            //统计全部符号占用的大小
+            sum+=sym->st_size;
+        }
+        //再次遍历符号表中的每一个符号
+        for (i=0, sym = sym_dyn; sym<sym_dyn+sym_nent; sym++,i++)
+        {
+            //输出每个符号占用的空间的比例
+            printf("%3d:    ",i);
+            printf("%-12.2x ",sym->st_size);
+            printf(" %f  \n",1.0*(sym->st_size)/sum);
+        }
+    }
 }
 ```
 
-#### 4.4.2.获取节头表数据
+#### 4.4.2.查询符号名
 
-获取节头表数据在函数get_32bit_section_headers中定义，其功能是将节头表数据结构从文件中读取到内存中，并初始化完数据结构，最终返回给处理打印程序。其详细注释代码如下所示：
+查询符号名在函数get_32bit_strdyn中定义，其功能是通过符号名索引，在符号名表strtab中查找对应的字符串，最终将这个字符串进行输出。其注释代码如下：
 
 ```c
-//读取32位ELF文件的节区头表
-int ELF_process::get_32bit_section_headers(FILE *file, unsigned int num)
+//查询符号名
+void ELF_process::get_32bit_strdyn(FILE *pFILE, Elf32_Word name)
 {
-    //file：ELF文件指针
-    //num：节区头表的项目数
+    //pFILE：文件
+    //name：符号名在符号名表中的索引
 
-    Elf32_External_Shdr * shdrs;
-    Elf32_Shdr* internal;
-
-    //利用elf头中的关于节头的信息，读取节头的数据，并强制转换为节头指针数据类型
-    //这里读取的shdrs是节头表数组的首地址
-    shdrs = (Elf32_External_Shdr *) get_data (NULL, file, elf_header.e_shoff,
-            elf_header.e_shentsize, num,
-            ("section headers"));
-    //如果节头数组为空，就表示读取失败了，所以直接返回
-    if (!shdrs)
-        return 0;
-
-    //申请内存存放节头数组，之前的读取的节头数组是
-    section_headers = (Elf32_Shdr *) cmalloc (num,sizeof (Elf32_Shdr));
-
-    //如果申请内存失败，返回内存溢出异常
-    if (section_headers == NULL)
-    {
-        printf("Out of memory\n");
-        return 0;
-    }
-
-    internal = section_headers;
-
-    //将从文件中读取的小端数据的节区头表数据转换为结构体的数据
-    //这里的转换有讲究的，因为我们读取使用的char[]数组读4个字节的，是不会进行转换的，会直接读取原始的小端数据
-    //这里需要将小端数据转换一下，变成正常的字数据
-    //那为什么不直接用uint_32t?
-    //因为保存的ELF文件不一定都是我定义的Elf32Word类型，变个名字就失效了
-    for (int i = 0; i < num; i++, internal++)
-    {
-        internal->sh_name      = BYTE_GET (shdrs[i].sh_name);
-        internal->sh_type      = BYTE_GET (shdrs[i].sh_type);
-        internal->sh_flags     = BYTE_GET (shdrs[i].sh_flags);
-        internal->sh_addr      = BYTE_GET (shdrs[i].sh_addr);
-        internal->sh_offset    = BYTE_GET (shdrs[i].sh_offset);
-        internal->sh_size      = BYTE_GET (shdrs[i].sh_size);
-        internal->sh_link      = BYTE_GET (shdrs[i].sh_link);
-        internal->sh_info      = BYTE_GET (shdrs[i].sh_info);
-        internal->sh_addralign = BYTE_GET (shdrs[i].sh_addralign);
-        internal->sh_entsize   = BYTE_GET (shdrs[i].sh_entsize);
-    }
-
-    free (shdrs);
-
-    return 1;
+    //定义临时变量存放符号名
+    unsigned char sym_name[1024];
+    //将文件的读取指针移动到符号名表的偏移地址处
+    fseek(pFILE,(str_dyn_offset+name),SEEK_SET);
+    //将数据读入到临时变量中，
+    //读取长度为1024是任意的，因此每个符号后面都跟着一个'/0'结束符
+    fread(sym_name,1024,1,pFILE);
+    //输出符号名
+    printf("%s\n",sym_name);
 }
 ```
 
