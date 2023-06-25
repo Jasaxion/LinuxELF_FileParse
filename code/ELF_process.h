@@ -116,18 +116,18 @@ typedef struct
 
 
 
-/* dynamic section structure */
-
+/* 动态节区结构 */
+/*32位*/
 typedef struct {
-    unsigned char    d_tag[4];        /* entry tag value */
+    unsigned char    d_tag[4];        /* 条目标签值 */
     union {
         unsigned char    d_val[4];
         unsigned char    d_ptr[4];
     } d_un;
 } Elf32_External_Dyn;
-
+/*64位*/
 typedef struct {
-    unsigned char    d_tag[8];        /* entry tag value */
+    unsigned char    d_tag[8];        /* 条目标签值 */
     union {
         unsigned char    d_val[8];
         unsigned char    d_ptr[8];
