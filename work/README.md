@@ -9,6 +9,18 @@
 	任继平
 ```
 
+快速跳转：
+
+- [h指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/zsx/h%E6%8C%87%E4%BB%A4/h%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [l指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/zsx/l%E6%8C%87%E4%BB%A4/l%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [S指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/zsx/S%E6%8C%87%E4%BB%A4/S%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [g指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/dp/g%E6%8C%87%E4%BB%A4/g%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [s指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/dp/s%E6%8C%87%E4%BB%A4/s%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [t指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/dp/t%E6%8C%87%E4%BB%A4/t%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [e指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/ls/e%E6%8C%87%E4%BB%A4/e%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [n指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/ls/n%E6%8C%87%E4%BB%A4/n%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+- [r指令](https://github.com/Jasaxion/LinuxELF_FileParse/blob/main/work/ls/r%E6%8C%87%E4%BB%A4/r%E6%8C%87%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8EELF%E5%AE%9E%E7%8E%B0.md)
+
 ## ELF文件格式
 
 首先我们先来介绍一下ELF文件格式。总体来说，ELF文件可以细分为三类。

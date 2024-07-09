@@ -1,6 +1,6 @@
-# LinuxELF_FileParse
+# LinuxELF-FileParse
 
-> 本项目依托2023HZAU暑期综合实训的相关要求进行撰写，深入学习了ELF文件解析的相关只是，并使用C++语言详尽对于ELF文件进行解析。
+> 本项目依托2023暑期综合实训的相关要求进行撰写，深入学习了ELF文件解析的相关知识，并使用C++语言详尽对于ELF文件进行解析。
 >
 > 项目成员包括：[Jasaxion](https://github.com/Jasaxion)、[Dxeee](https://github.com/Dxee-e)、[Guai2401](https://github.com/Guai001)
 
@@ -28,6 +28,8 @@
 ```
 
 
+
+- 实训要求：
 
 注意提交文件的要点，注意按照每个部分的考查内容进行微调语言和内容，注意团队分工以及个人工作的协调。
 

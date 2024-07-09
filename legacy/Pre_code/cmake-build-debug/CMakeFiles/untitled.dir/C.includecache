@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/Desktop/untitled/main.c
+stdio.h
+-
+fcntl.h
+-
+sys/types.h
+-
+unistd.h
+-
+malloc.h
+-
+string.h
+-
+elf.h
+-
+
