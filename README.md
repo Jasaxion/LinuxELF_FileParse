@@ -6,6 +6,8 @@
 
 👋欢迎学弟学妹继续补充～
 
+ELF文件解析文档：[🔗链接](https://github.com/Jasaxion/LinuxELF_FileParse/tree/main/work)
+
 项目文件结构:「标记为🔅为需要提交的项目」
 
 ```–主文件夹
